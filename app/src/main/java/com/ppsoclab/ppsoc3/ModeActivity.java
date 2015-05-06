@@ -8,8 +8,10 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,6 +24,7 @@ import android.widget.Toast;
 import com.ppsoclab.ppsoc3.Fragments.ConnectFragment;
 import com.ppsoclab.ppsoc3.Interfaces.ModeChooseListener;
 import java.util.List;
+import java.util.UUID;
 
 public class ModeActivity extends AppCompatActivity implements ModeChooseListener, BluetoothAdapter.LeScanCallback {
     ProgressDialog progressDialog;
@@ -35,13 +38,13 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
     BluetoothGattCallback bluetoothGattCallback;
     BluetoothGatt bluetoothGatt;
     List<BluetoothGattCharacteristic> characteristics;
+    BluetoothGattCharacteristic characteristic;
+    UUID TARGET_UUID;
 
     byte[] data;
 
 
     private static final String TAG = "ModeActivity";
-    private static final int MODE_1 = 0;
-    private static final int MODE_2 = 1;
     private static final String MODE_NAME_1 = "GigaFu-F081";
     private static final String MODE_NAME_2 = "";
     private static final String THREAD_NAME = "ConnectProcess";
@@ -57,27 +60,41 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
                 super.onConnectionStateChange(gatt, status, newState);
-                bluetoothGatt.discoverServices();
-                Log.w(TAG,"Discovering services");
+                if(newState == BluetoothProfile.STATE_CONNECTED) {
+                    bluetoothGatt.discoverServices();
+                }
             }
 
             @Override
             public void onServicesDiscovered(BluetoothGatt gatt, int status) {
                 super.onServicesDiscovered(gatt, status);
+                Log.w(TAG,"onServicesDiscovered");
                 List<BluetoothGattService> services = bluetoothGatt.getServices();
                 for (BluetoothGattService service : services) {
                     characteristics = service.getCharacteristics();
                 }
+                characteristic = characteristics.get(5);
+                bluetoothGatt.setCharacteristicNotification(characteristic, true);
+                BluetoothGattDescriptor descriptor = characteristic.getDescriptors().get(0);
+                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                bluetoothGatt.writeDescriptor(descriptor);
+                Log.w(TAG,"notify");
             }
 
             @Override
-            public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristicLocal) {
                 super.onCharacteristicChanged(gatt, characteristic);
-                data = characteristic.getValue();
-                for(int temp : data){
-                    Log.w(TAG,temp+" ");
-                }
+                if (characteristic.equals(characteristicLocal)) {
+                    data = characteristic.getValue();
+                    for(int temp : data){
 
+                    }
+                }
+            }
+
+            @Override
+            public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+                super.onCharacteristicRead(gatt, characteristic, status);
             }
         };
         setContentView(R.layout.activity_mode);
