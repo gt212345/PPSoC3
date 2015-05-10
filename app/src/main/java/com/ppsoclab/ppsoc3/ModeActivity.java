@@ -12,6 +12,7 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -21,9 +22,16 @@ import android.os.HandlerThread;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.ppsoclab.ppsoc3.Fragments.ChartFragment;
 import com.ppsoclab.ppsoc3.Fragments.ConnectFragment;
+import com.ppsoclab.ppsoc3.Interfaces.DataListener;
 import com.ppsoclab.ppsoc3.Interfaces.ModeChooseListener;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class ModeActivity extends AppCompatActivity implements ModeChooseListener, BluetoothAdapter.LeScanCallback {
@@ -37,9 +45,16 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
     Context context;
     BluetoothGattCallback bluetoothGattCallback;
     BluetoothGatt bluetoothGatt;
+    BluetoothDevice bluetoothDevice;
+    BluetoothSocket bluetoothSocket;
     List<BluetoothGattCharacteristic> characteristics;
     BluetoothGattCharacteristic characteristic;
+    InputStream inputStream;
     UUID TARGET_UUID;
+    DataListener dataListener;
+
+
+    boolean isConnected = false;
 
     byte[] data;
 
@@ -48,6 +63,8 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
     private static final String MODE_NAME_1 = "GigaFu-F081";
     private static final String MODE_NAME_2 = "";
     private static final String THREAD_NAME = "ConnectProcess";
+
+    private static final int PACKET_SIZE = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +79,7 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
                 super.onConnectionStateChange(gatt, status, newState);
                 if(newState == BluetoothProfile.STATE_CONNECTED) {
                     bluetoothGatt.discoverServices();
+                    isConnected = true;
                 }
             }
 
@@ -78,7 +96,7 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
                 BluetoothGattDescriptor descriptor = characteristic.getDescriptors().get(0);
                 descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                 bluetoothGatt.writeDescriptor(descriptor);
-                Log.w(TAG,"notify");
+                Log.w(TAG, "notify");
             }
 
             @Override
@@ -86,9 +104,11 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
                 super.onCharacteristicChanged(gatt, characteristic);
                 if (characteristic.equals(characteristicLocal)) {
                     data = characteristic.getValue();
-                    for(int temp : data){
-
+                    String str = "Data array : ";
+                    for (byte b : data){
+                        str += ByteParse.sIN16FromByte(b)+", ";
                     }
+                    Log.w(TAG,str);
                 }
             }
 
@@ -118,19 +138,42 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
 
     @Override
     public void doAfterModeChose(int mode) {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                bluetoothAdapter.startLeScan(ModeActivity.this);
-            }
-        });
+        progressDialog = ProgressDialog.show(this, "Please wait", "Connecting......", true);
+        switch (mode) {
+            case 0:
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        bluetoothAdapter.startLeScan(ModeActivity.this);
+                    }
+                });
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(!isConnected) {
+                            bluetoothAdapter.stopLeScan(ModeActivity.this);
+                            progressDialog.cancel();
+                        }
+                    }
+                },5000);
+                break;
+            case 1:
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        findBT();
+                    }
+                });
+                break;
+        }
     }
 
     @Override
     public void onLeScan(BluetoothDevice bluetoothDevice, int i, byte[] bytes) {
-//        if(bluetoothDevice.getName() == MODE_NAME_1){
+//        if(bluetoothDevice.){
             bluetoothGatt = bluetoothDevice.connectGatt(this, false, bluetoothGattCallback);
 //        }
+
     }
 
     @Override
@@ -139,4 +182,74 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
         bluetoothGatt.disconnect();
         bluetoothGatt.close();
     }
+
+    private void findBT() {
+        Set<BluetoothDevice> pairedDevices = bluetoothAdapter
+                .getBondedDevices();
+        if (pairedDevices.size() > 0) {
+            for (BluetoothDevice device : pairedDevices) {
+                if (device.getName().equals(MODE_NAME_2)) {
+                    bluetoothDevice = device;
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            openBT();
+                        }
+                    });
+                    break;
+                } else {
+                    progressDialog.cancel();
+                    Toast.makeText(this,"Connect attempt failed",Toast.LENGTH_SHORT).show();
+                    Log.w(TAG, "no match");
+                }
+            }
+        } else {
+            progressDialog.cancel();
+            Toast.makeText(this,"Connect attempt failed",Toast.LENGTH_SHORT).show();
+            Log.w(TAG, "no paired device");
+        }
+    }
+
+    private void openBT() {
+        UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // Standard
+        // SerialPortService
+        // ID
+//        UUID uuid = bluetoothDevice.getUuids()[0].getUuid();
+        try {
+            Log.w(TAG, "Trying to connect with standard method");
+            bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(uuid);
+            if (!bluetoothSocket.isConnected()) {
+                bluetoothSocket.connect();
+                Log.w(TAG, "Device connected with standard method");
+                fragment = new ChartFragment();
+                fragmentManager.beginTransaction().replace(R.id.container,fragment).commit();
+                dataListener = (ChartFragment) fragment;
+                inputStream = bluetoothSocket.getInputStream();
+                progressDialog.cancel();
+                Toast.makeText(this,"Connected",Toast.LENGTH_SHORT).show();
+                handler.post(dataListen);
+            }
+        } catch (IOException e) {
+            progressDialog.cancel();
+            Toast.makeText(this,"Connect attempt failed",Toast.LENGTH_SHORT).show();
+            Log.w(TAG, e.toString());
+        }
+    }
+
+    Runnable dataListen = new Runnable() {
+        @Override
+        public void run() {
+            while (bluetoothSocket.isConnected()) {
+                try {
+                    if (inputStream.available() >= PACKET_SIZE) {
+                        byte[] temp = new byte[PACKET_SIZE];
+                        inputStream.read(temp);
+                        dataListener.onDataReceived(temp);
+                    }
+                } catch (IOException e) {
+                    Log.w(TAG,e.toString());
+                }
+            }
+        }
+    };
 }
