@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
@@ -78,7 +79,6 @@ public class ChartFragment extends Fragment implements DataListener{
     ArrayList<Integer> z6raw;
     ArrayList<Integer> z7raw;
     ArrayList<Integer> z8raw;
-    ArrayList<ArrayList> init;
     Handler handler;
     HandlerThread handlerThread;
 
@@ -93,19 +93,7 @@ public class ChartFragment extends Fragment implements DataListener{
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         chartInit();
-        init = new ArrayList<>();
-        x1angle = new ArrayList<>();x2angle = new ArrayList<>();x3angle = new ArrayList<>();x4angle = new ArrayList<>();
-        x5angle = new ArrayList<>();x6angle = new ArrayList<>();x7angle = new ArrayList<>();x8angle = new ArrayList<>();
-        y1angle = new ArrayList<>();y2angle = new ArrayList<>();y3angle = new ArrayList<>();y4angle = new ArrayList<>();
-        y5angle = new ArrayList<>();y6angle = new ArrayList<>();y7angle = new ArrayList<>();y8angle = new ArrayList<>();
-        z1angle = new ArrayList<>();z2angle = new ArrayList<>();z3angle = new ArrayList<>();z4angle = new ArrayList<>();
-        z5angle = new ArrayList<>();z6angle = new ArrayList<>();z7angle = new ArrayList<>();z8angle = new ArrayList<>();
-        x1raw = new ArrayList<>();x2raw = new ArrayList<>();x3raw = new ArrayList<>();x4raw = new ArrayList<>();
-        x5raw = new ArrayList<>();x6raw = new ArrayList<>();x7raw = new ArrayList<>();x8raw = new ArrayList<>();
-        y1raw = new ArrayList<>();y2raw = new ArrayList<>();y3raw = new ArrayList<>();y4raw = new ArrayList<>();
-        y5raw = new ArrayList<>();y6raw = new ArrayList<>();y7raw = new ArrayList<>();y8raw = new ArrayList<>();
-        z1raw = new ArrayList<>();z2raw = new ArrayList<>();z3raw = new ArrayList<>();z4raw = new ArrayList<>();
-        z5raw = new ArrayList<>();z6raw = new ArrayList<>();z7raw = new ArrayList<>();z8raw = new ArrayList<>();
+        arrayReset();
         handlerThread = new HandlerThread("");
         handlerThread.start();
         handler = new Handler(handlerThread.getLooper());
@@ -189,59 +177,95 @@ public class ChartFragment extends Fragment implements DataListener{
         lineChart.setNoDataText("");
         lineChart.setHighlightEnabled(true);
         lineChart.setTouchEnabled(true);
-//        lineChart.setDragDecelerationFrictionCoef(0.95f);
+        lineChart.setDragDecelerationFrictionCoef(0.95f);
+        lineChart.setDragEnabled(true);
         lineChart.setScaleEnabled(true);
         lineChart.setDrawGridBackground(false);
-        lineChart.setBackgroundColor(Color.WHITE);
+        lineChart.setHighlightPerDragEnabled(true);
+        lineChart.setPinchZoom(true);
     }
 
     private void chartDraw() {
-        ArrayList<Entry> yData1 = new ArrayList<>();
-        for (int i = 0 ; i < x4angle.size() ; i++){
-            yData1.add(new Entry(x4angle.get(i),i));
+        if(x1raw.size() == y1raw.size() && x1raw.size() == z1raw.size() && y1raw.size() == z1raw.size()) {
+            ArrayList<Entry> yData1 = new ArrayList<>();
+            ArrayList<Entry> yData2 = new ArrayList<>();
+            ArrayList<Entry> yData3 = new ArrayList<>();
+            ArrayList<String> xVals = new ArrayList<>();
+            for (int i = 0; i < x1raw.size(); i++) {
+                yData1.add(new Entry(x1raw.get(i), i));
+                yData2.add(new Entry(y1raw.get(i), i));
+                yData3.add(new Entry(z1raw.get(i), i));
+                xVals.add((0.1 * i) + " s");
+            }
+            LineDataSet lineDataSet1 = new LineDataSet(yData1, "X4ANGEL");
+            lineDataSet1.setAxisDependency(YAxis.AxisDependency.LEFT);
+            lineDataSet1.setColor(ColorTemplate.getHoloBlue());
+            lineDataSet1.setCircleColor(ColorTemplate.getHoloBlue());
+            lineDataSet1.setLineWidth(2f);
+            lineDataSet1.setCircleSize(3f);
+            lineDataSet1.setFillAlpha(65);
+            lineDataSet1.setFillColor(ColorTemplate.getHoloBlue());
+            lineDataSet1.setHighLightColor(Color.rgb(244, 117, 117));
+            lineDataSet1.setDrawCircleHole(false);
+            LineDataSet lineDataSet2 = new LineDataSet(yData2, "Y4ANGEL");
+            lineDataSet2.setAxisDependency(YAxis.AxisDependency.LEFT);
+            lineDataSet2.setColor(Color.RED);
+            lineDataSet2.setCircleColor(Color.RED);
+            lineDataSet2.setLineWidth(2f);
+            lineDataSet2.setCircleSize(3f);
+            lineDataSet2.setDrawCubic(true);
+            LineDataSet lineDataSet3 = new LineDataSet(yData3, "Z4ANGEL");
+            lineDataSet3.setAxisDependency(YAxis.AxisDependency.LEFT);
+            lineDataSet3.setColor(Color.GREEN);
+            lineDataSet3.setCircleColor(Color.GREEN);
+            lineDataSet3.setLineWidth(2f);
+            lineDataSet3.setCircleSize(3f);
+            lineDataSet3.setDrawCubic(true);
+            ArrayList<LineDataSet> dataSets = new ArrayList<>();
+            dataSets.add(lineDataSet1);
+            dataSets.add(lineDataSet2);
+            dataSets.add(lineDataSet3);
+            LineData data = new LineData(xVals, dataSets);
+            data.setValueTextColor(Color.BLACK);
+            data.setValueTextSize(9f);
+            lineChart.setData(data);
+            Legend l = lineChart.getLegend();
+            l.setForm(Legend.LegendForm.LINE);
+            l.setTextColor(Color.BLACK);
+            l.setPosition(Legend.LegendPosition.BELOW_CHART_LEFT);
+            XAxis xAxis = lineChart.getXAxis();
+            xAxis.setLabelsToSkip(25);
+            xAxis.setTextColor(Color.BLACK);
+            xAxis.setDrawGridLines(false);
+            xAxis.setDrawAxisLine(false);
+
+            YAxis yAxis = lineChart.getAxisLeft();
+            yAxis.setDrawGridLines(false);
+            YAxis yAxis1 = lineChart.getAxisRight();
+            yAxis1.setDrawGridLines(false);
+            arrayReset();
+
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    lineChart.animateX(200);
+                }
+            });
         }
-        ArrayList<Entry> yData2 = new ArrayList<>();
-        for (int i = 0 ; i < y4angle.size() ; i++){
-            yData2.add(new Entry(y4angle.get(i),i));
-        }
-        ArrayList<Entry> yData3 = new ArrayList<>();
-        for (int i = 0 ; i < z4angle.size() ; i++){
-            yData3.add(new Entry(z4angle.get(i),i));
-        }
-        LineDataSet lineDataSet1 = new LineDataSet(yData1,"X4ANGEL");
-        lineDataSet1.setAxisDependency(YAxis.AxisDependency.LEFT);
-        lineDataSet1.setColor(ColorTemplate.getHoloBlue());
-        lineDataSet1.setCircleColor(Color.WHITE);
-//        lineDataSet1.setLineWidth(2f);
-//        lineDataSet1.setCircleSize(3f);
-//        lineDataSet1.setDrawCubic(true);
-        LineDataSet lineDataSet2 = new LineDataSet(yData2,"Y4ANGEL");
-        lineDataSet2.setAxisDependency(YAxis.AxisDependency.LEFT);
-        lineDataSet2.setColor(Color.RED);
-        lineDataSet2.setCircleColor(Color.WHITE);
-//        lineDataSet2.setLineWidth(2f);
-//        lineDataSet2.setCircleSize(3f);
-//        lineDataSet2.setDrawCubic(true);
-        LineDataSet lineDataSet3 = new LineDataSet(yData3,"Z4ANGEL");
-        lineDataSet3.setAxisDependency(YAxis.AxisDependency.LEFT);
-        lineDataSet3.setColor(Color.GREEN);
-        lineDataSet3.setCircleColor(Color.WHITE);
-//        lineDataSet3.setLineWidth(2f);
-//        lineDataSet3.setCircleSize(3f);
-//        lineDataSet3.setDrawCubic(true);
-        ArrayList<LineDataSet> dataSets = new ArrayList<>();
-        dataSets.add(lineDataSet1);
-//        dataSets.add(lineDataSet2);dataSets.add(lineDataSet3);
-        ArrayList<String> xVals = new ArrayList<>();
-        for(int i = 0;i < x4angle.size();i++) {
-            xVals.add((0.1*i)+" s");
-        }
-        LineData data = new LineData(xVals,dataSets);
-        data.setValueTextColor(Color.WHITE);
-        data.setValueTextSize(9f);
-        lineChart.setData(data);
-        lineChart.animateX(2000);
-//        Legend l = lineChart.getLegend();
-//        l.setForm(Legend.LegendForm.LINE);
+    }
+
+    private void arrayReset() {
+        x1angle = new ArrayList<>();x2angle = new ArrayList<>();x3angle = new ArrayList<>();x4angle = new ArrayList<>();
+        x5angle = new ArrayList<>();x6angle = new ArrayList<>();x7angle = new ArrayList<>();x8angle = new ArrayList<>();
+        y1angle = new ArrayList<>();y2angle = new ArrayList<>();y3angle = new ArrayList<>();y4angle = new ArrayList<>();
+        y5angle = new ArrayList<>();y6angle = new ArrayList<>();y7angle = new ArrayList<>();y8angle = new ArrayList<>();
+        z1angle = new ArrayList<>();z2angle = new ArrayList<>();z3angle = new ArrayList<>();z4angle = new ArrayList<>();
+        z5angle = new ArrayList<>();z6angle = new ArrayList<>();z7angle = new ArrayList<>();z8angle = new ArrayList<>();
+        x1raw = new ArrayList<>();x2raw = new ArrayList<>();x3raw = new ArrayList<>();x4raw = new ArrayList<>();
+        x5raw = new ArrayList<>();x6raw = new ArrayList<>();x7raw = new ArrayList<>();x8raw = new ArrayList<>();
+        y1raw = new ArrayList<>();y2raw = new ArrayList<>();y3raw = new ArrayList<>();y4raw = new ArrayList<>();
+        y5raw = new ArrayList<>();y6raw = new ArrayList<>();y7raw = new ArrayList<>();y8raw = new ArrayList<>();
+        z1raw = new ArrayList<>();z2raw = new ArrayList<>();z3raw = new ArrayList<>();z4raw = new ArrayList<>();
+        z5raw = new ArrayList<>();z6raw = new ArrayList<>();z7raw = new ArrayList<>();z8raw = new ArrayList<>();
     }
 }
