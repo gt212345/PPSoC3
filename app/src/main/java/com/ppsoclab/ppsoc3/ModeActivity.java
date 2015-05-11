@@ -61,10 +61,10 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
 
     private static final String TAG = "ModeActivity";
     private static final String MODE_NAME_1 = "GigaFu-F081";
-    private static final String MODE_NAME_2 = "";
+    private static final String MODE_NAME_2 = "RNBT-71CB";
     private static final String THREAD_NAME = "ConnectProcess";
 
-    private static final int PACKET_SIZE = 0;
+    private static final int PACKET_SIZE = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
