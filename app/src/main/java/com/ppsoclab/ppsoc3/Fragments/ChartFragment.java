@@ -112,7 +112,7 @@ public class ChartFragment extends Fragment implements DataListener{
 
     @Override
     public void onDataReceived(byte[] data) {
-        if(x1angle!=null) {
+        if(x1angle != null && ByteParse.sIN16FromByte(data[0]) == 170) {
             x1angle.add(ByteParse.sIN16From2Byte(data[2], data[3]));
             y1angle.add(ByteParse.sIN16From2Byte(data[4], data[5]));
             z1angle.add(ByteParse.sIN16From2Byte(data[6], data[7]));
@@ -191,10 +191,10 @@ public class ChartFragment extends Fragment implements DataListener{
             ArrayList<Entry> yData2 = new ArrayList<>();
             ArrayList<Entry> yData3 = new ArrayList<>();
             ArrayList<String> xVals = new ArrayList<>();
-            for (int i = 0; i < x1raw.size(); i++) {
-                yData1.add(new Entry(x1raw.get(i), i));
-                yData2.add(new Entry(y1raw.get(i), i));
-                yData3.add(new Entry(z1raw.get(i), i));
+            for (int i = 0; i < x1raw.size()-1; i++) {
+                yData1.add(new Entry(x1raw.get(i)/16, i));
+                yData2.add(new Entry(y1raw.get(i)/16, i));
+                yData3.add(new Entry(z1raw.get(i)/16, i));
                 xVals.add((0.1 * i) + " s");
             }
             LineDataSet lineDataSet1 = new LineDataSet(yData1, "X4ANGEL");
@@ -234,15 +234,21 @@ public class ChartFragment extends Fragment implements DataListener{
             l.setTextColor(Color.BLACK);
             l.setPosition(Legend.LegendPosition.BELOW_CHART_LEFT);
             XAxis xAxis = lineChart.getXAxis();
-            xAxis.setLabelsToSkip(25);
+            xAxis.setLabelsToSkip(49);
             xAxis.setTextColor(Color.BLACK);
             xAxis.setDrawGridLines(false);
             xAxis.setDrawAxisLine(false);
 
             YAxis yAxis = lineChart.getAxisLeft();
             yAxis.setDrawGridLines(false);
+            yAxis.setAxisMaxValue(2047f);
+            yAxis.setAxisMinValue(-2048f);
+            yAxis.setStartAtZero(false);
             YAxis yAxis1 = lineChart.getAxisRight();
+            yAxis1.setAxisMaxValue(2047f);
+            yAxis1.setAxisMinValue(-2048f);
             yAxis1.setDrawGridLines(false);
+            yAxis1.setStartAtZero(false);
             arrayReset();
 
             getActivity().runOnUiThread(new Runnable() {

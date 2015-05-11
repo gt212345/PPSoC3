@@ -52,6 +52,7 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
     InputStream inputStream;
     UUID TARGET_UUID;
     DataListener dataListener;
+    byte[] temp;
 
 
     boolean isConnected = false;
@@ -61,7 +62,7 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
 
     private static final String TAG = "ModeActivity";
     private static final String MODE_NAME_1 = "GigaFu-F081";
-    private static final String MODE_NAME_2 = "RNBT-71CB";
+    private static final String MODE_NAME_2 = "RNBT-719D";
     private static final String THREAD_NAME = "ConnectProcess";
 
     private static final int PACKET_SIZE = 100;
@@ -69,6 +70,7 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        temp = new byte[PACKET_SIZE];
         context = getApplicationContext();
         /*BLE setup*/
         final BluetoothManager bluetoothManager = (BluetoothManager)getSystemService(this.BLUETOOTH_SERVICE);
@@ -242,9 +244,12 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
             while (bluetoothSocket.isConnected()) {
                 try {
                     if (inputStream.available() >= PACKET_SIZE) {
-                        byte[] temp = new byte[PACKET_SIZE];
                         inputStream.read(temp);
-                        dataListener.onDataReceived(temp);
+                        if(ByteParse.sIN16FromByte(temp[0]) == 170) {
+                            dataListener.onDataReceived(temp);
+                        } else {
+                            inputStream.skip(1);
+                        }
                     }
                 } catch (IOException e) {
                     Log.w(TAG,e.toString());
