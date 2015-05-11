@@ -22,7 +22,8 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.1.1'
-    dependencies {
-        compile 'com.diogobernardino:williamchart:1.7.0'
-    }
+    compile 'com.github.PhilJay:MPAndroidChart:v2.1.0'
+}
+repositories {
+    maven { url "https://jitpack.io" }
 }

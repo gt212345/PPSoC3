@@ -21,4 +21,10 @@ public class ByteParse {
 //        int i = 10*((short)Integer.parseInt(hsbString,16))+((short)Integer.parseInt(lsbString,16));
         return Integer.parseInt(temp,2);
     }
+
+    public static int sIN16From2Byte(byte L,byte H){
+        String temp = byteToString(H);
+        temp += byteToString(L);
+        return Integer.parseInt(temp,2);
+    }
 }
