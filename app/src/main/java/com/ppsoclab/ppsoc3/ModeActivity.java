@@ -186,8 +186,7 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
     }
 
     private void findBT() {
-        Set<BluetoothDevice> pairedDevices = bluetoothAdapter
-                .getBondedDevices();
+        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
                 if (device.getName().equals(MODE_NAME_2)) {

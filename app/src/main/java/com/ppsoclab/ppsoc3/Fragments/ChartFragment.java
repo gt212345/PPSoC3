@@ -133,115 +133,115 @@ public class ChartFragment extends Fragment implements DataListener{
         if(x1angle != null && ByteParse.sIN16FromByte(data[0]) == 170) {
             try {
                 x1angle.add(ByteParse.sIN16From2Byte(data[2], data[3]));
-                writeToSD(ByteParse.sIN16From2Byte(data[2], data[3]), "X1Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[2], data[3])/16, "X1Angle");
                 y1angle.add(ByteParse.sIN16From2Byte(data[4], data[5]));
-                writeToSD(ByteParse.sIN16From2Byte(data[4], data[5]), "Y1Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[4], data[5])/16, "Y1Angle");
                 z1angle.add(ByteParse.sIN16From2Byte(data[6], data[7]));
-                writeToSD(ByteParse.sIN16From2Byte(data[6], data[7]), "Z1Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[6], data[7])/16, "Z1Angle");
                 x1raw.add(ByteParse.sIN16From2Byte(data[8], data[9]));
-                writeToSD(ByteParse.sIN16From2Byte(data[8], data[9]), "X1Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[8], data[9])/16, "X1Raw");
                 y1raw.add(ByteParse.sIN16From2Byte(data[10], data[11]));
-                writeToSD(ByteParse.sIN16From2Byte(data[10], data[11]), "Y1Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[10], data[11])/16, "Y1Raw");
                 z1raw.add(ByteParse.sIN16From2Byte(data[12], data[13]));
-                writeToSD(ByteParse.sIN16From2Byte(data[12], data[13]), "Z1Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[12], data[13])/16, "Z1Raw");
                 bufferedWriter.newLine();
 
                 x2angle.add(ByteParse.sIN16From2Byte(data[14], data[15]));
-                writeToSD(ByteParse.sIN16From2Byte(data[14], data[15]), "X2Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[14], data[15])/16, "X2Angle");
                 y2angle.add(ByteParse.sIN16From2Byte(data[16], data[17]));
-                writeToSD(ByteParse.sIN16From2Byte(data[16], data[17]), "Y2Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[16], data[17])/16, "Y2Angle");
                 z2angle.add(ByteParse.sIN16From2Byte(data[18], data[19]));
-                writeToSD(ByteParse.sIN16From2Byte(data[18], data[19]), "Z2Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[18], data[19])/16, "Z2Angle");
                 x2raw.add(ByteParse.sIN16From2Byte(data[20], data[21]));
-                writeToSD(ByteParse.sIN16From2Byte(data[20], data[21]), "X2Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[20], data[21])/16, "X2Raw");
                 y2raw.add(ByteParse.sIN16From2Byte(data[22], data[23]));
-                writeToSD(ByteParse.sIN16From2Byte(data[22], data[23]), "Y2Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[22], data[23])/16, "Y2Raw");
                 z2raw.add(ByteParse.sIN16From2Byte(data[24], data[25]));
-                writeToSD(ByteParse.sIN16From2Byte(data[24], data[25]), "Z2Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[24], data[25])/16, "Z2Raw");
                 bufferedWriter.newLine();
 
                 x3angle.add(ByteParse.sIN16From2Byte(data[26], data[27]));
-                writeToSD(ByteParse.sIN16From2Byte(data[26], data[27]), "X3Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[26], data[27])/16, "X3Angle");
                 y3angle.add(ByteParse.sIN16From2Byte(data[28], data[29]));
-                writeToSD(ByteParse.sIN16From2Byte(data[28], data[29]), "Y3Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[28], data[29])/16, "Y3Angle");
                 z3angle.add(ByteParse.sIN16From2Byte(data[30], data[31]));
-                writeToSD(ByteParse.sIN16From2Byte(data[30], data[31]), "Z3Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[30], data[31])/16, "Z3Angle");
                 x3raw.add(ByteParse.sIN16From2Byte(data[32], data[33]));
-                writeToSD(ByteParse.sIN16From2Byte(data[32], data[3]), "X3Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[32], data[3])/16, "X3Raw");
                 y3raw.add(ByteParse.sIN16From2Byte(data[34], data[35]));
-                writeToSD(ByteParse.sIN16From2Byte(data[34], data[35]), "Y3Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[34], data[35])/16, "Y3Raw");
                 z3raw.add(ByteParse.sIN16From2Byte(data[36], data[37]));
-                writeToSD(ByteParse.sIN16From2Byte(data[36], data[37]), "Z3Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[36], data[37])/16, "Z3Raw");
                 bufferedWriter.newLine();
 
                 x4angle.add(ByteParse.sIN16From2Byte(data[38], data[39]));
-                writeToSD(ByteParse.sIN16From2Byte(data[38], data[39]), "X4Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[38], data[39])/16, "X4Angle");
                 y4angle.add(ByteParse.sIN16From2Byte(data[40], data[41]));
-                writeToSD(ByteParse.sIN16From2Byte(data[40], data[41]), "Y4Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[40], data[41])/16, "Y4Angle");
                 z4angle.add(ByteParse.sIN16From2Byte(data[42], data[43]));
-                writeToSD(ByteParse.sIN16From2Byte(data[42], data[43]), "Z4Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[42], data[43])/16, "Z4Angle");
                 x4raw.add(ByteParse.sIN16From2Byte(data[44], data[45]));
-                writeToSD(ByteParse.sIN16From2Byte(data[44], data[45]), "X4Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[44], data[45])/16, "X4Raw");
                 y4raw.add(ByteParse.sIN16From2Byte(data[46], data[47]));
-                writeToSD(ByteParse.sIN16From2Byte(data[46], data[47]), "Y4Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[46], data[47])/16, "Y4Raw");
                 z4raw.add(ByteParse.sIN16From2Byte(data[48], data[49]));
-                writeToSD(ByteParse.sIN16From2Byte(data[48], data[49]), "Z4Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[48], data[49])/16, "Z4Raw");
                 bufferedWriter.newLine();
 
                 x5angle.add(ByteParse.sIN16From2Byte(data[50], data[51]));
-                writeToSD(ByteParse.sIN16From2Byte(data[50], data[51]), "X5Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[50], data[51])/16, "X5Angle");
                 y5angle.add(ByteParse.sIN16From2Byte(data[52], data[53]));
-                writeToSD(ByteParse.sIN16From2Byte(data[52], data[53]), "Y5Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[52], data[53])/16, "Y5Angle");
                 z5angle.add(ByteParse.sIN16From2Byte(data[54], data[55]));
-                writeToSD(ByteParse.sIN16From2Byte(data[54], data[55]), "Z5Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[54], data[55])/16, "Z5Angle");
                 x5raw.add(ByteParse.sIN16From2Byte(data[56], data[57]));
-                writeToSD(ByteParse.sIN16From2Byte(data[56], data[57]), "X5Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[56], data[57])/16, "X5Raw");
                 y5raw.add(ByteParse.sIN16From2Byte(data[58], data[59]));
-                writeToSD(ByteParse.sIN16From2Byte(data[58], data[59]), "Y5Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[58], data[59])/16, "Y5Raw");
                 z5raw.add(ByteParse.sIN16From2Byte(data[60], data[61]));
-                writeToSD(ByteParse.sIN16From2Byte(data[60], data[61]), "Z5Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[60], data[61])/16, "Z5Raw");
                 bufferedWriter.newLine();
 
                 x6angle.add(ByteParse.sIN16From2Byte(data[62], data[63]));
-                writeToSD(ByteParse.sIN16From2Byte(data[62], data[63]), "X6Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[62], data[63])/16, "X6Angle");
                 y6angle.add(ByteParse.sIN16From2Byte(data[64], data[65]));
-                writeToSD(ByteParse.sIN16From2Byte(data[64], data[65]), "Y6Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[64], data[65])/16, "Y6Angle");
                 z6angle.add(ByteParse.sIN16From2Byte(data[66], data[67]));
-                writeToSD(ByteParse.sIN16From2Byte(data[66], data[67]), "Z6Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[66], data[67])/16, "Z6Angle");
                 x6raw.add(ByteParse.sIN16From2Byte(data[68], data[69]));
-                writeToSD(ByteParse.sIN16From2Byte(data[68], data[69]), "X6Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[68], data[69])/16, "X6Raw");
                 y6raw.add(ByteParse.sIN16From2Byte(data[70], data[71]));
-                writeToSD(ByteParse.sIN16From2Byte(data[70], data[71]), "Y6Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[70], data[71])/16, "Y6Raw");
                 z6raw.add(ByteParse.sIN16From2Byte(data[72], data[73]));
-                writeToSD(ByteParse.sIN16From2Byte(data[72], data[73]), "Z6Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[72], data[73])/16, "Z6Raw");
                 bufferedWriter.newLine();
 
                 x7angle.add(ByteParse.sIN16From2Byte(data[74], data[75]));
-                writeToSD(ByteParse.sIN16From2Byte(data[74], data[75]), "X7Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[74], data[75])/16, "X7Angle");
                 y7angle.add(ByteParse.sIN16From2Byte(data[76], data[77]));
-                writeToSD(ByteParse.sIN16From2Byte(data[76], data[77]), "Y7Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[76], data[77])/16, "Y7Angle");
                 z7angle.add(ByteParse.sIN16From2Byte(data[78], data[79]));
-                writeToSD(ByteParse.sIN16From2Byte(data[78], data[79]), "Z7Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[78], data[79])/16, "Z7Angle");
                 x7raw.add(ByteParse.sIN16From2Byte(data[80], data[81]));
-                writeToSD(ByteParse.sIN16From2Byte(data[80], data[81]), "X7Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[80], data[81])/16, "X7Raw");
                 y7raw.add(ByteParse.sIN16From2Byte(data[82], data[83]));
-                writeToSD(ByteParse.sIN16From2Byte(data[82], data[83]), "Y7Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[82], data[83])/16, "Y7Raw");
                 z7raw.add(ByteParse.sIN16From2Byte(data[84], data[85]));
-                writeToSD(ByteParse.sIN16From2Byte(data[84], data[85]), "Z7Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[84], data[85])/16, "Z7Raw");
                 bufferedWriter.newLine();
 
                 x8angle.add(ByteParse.sIN16From2Byte(data[86], data[87]));
-                writeToSD(ByteParse.sIN16From2Byte(data[86], data[87]), "X8Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[86], data[87])/16, "X8Angle");
                 y8angle.add(ByteParse.sIN16From2Byte(data[88], data[89]));
-                writeToSD(ByteParse.sIN16From2Byte(data[88], data[89]), "Y8Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[88], data[89])/16, "Y8Angle");
                 z8angle.add(ByteParse.sIN16From2Byte(data[90], data[91]));
-                writeToSD(ByteParse.sIN16From2Byte(data[90], data[91]), "Z8Angle");
+                writeToSD(ByteParse.sIN16From2Byte(data[90], data[91])/16, "Z8Angle");
                 x8raw.add(ByteParse.sIN16From2Byte(data[92], data[93]));
-                writeToSD(ByteParse.sIN16From2Byte(data[92], data[93]), "X8Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[92], data[93])/16, "X8Raw");
                 y8raw.add(ByteParse.sIN16From2Byte(data[94], data[95]));
-                writeToSD(ByteParse.sIN16From2Byte(data[94], data[95]), "Y8Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[94], data[95])/16, "Y8Raw");
                 z8raw.add(ByteParse.sIN16From2Byte(data[96], data[97]));
-                writeToSD(ByteParse.sIN16From2Byte(data[96], data[97]), "Z8Raw");
+                writeToSD(ByteParse.sIN16From2Byte(data[96], data[97])/16, "Z8Raw");
                 bufferedWriter.newLine();
                 bufferedWriter.flush();
             } catch (IOException e){
@@ -361,7 +361,7 @@ public class ChartFragment extends Fragment implements DataListener{
 
     private void writeToSD (int i, String title) {
         try {
-            bufferedWriter.append(title + ": " + i);
+            bufferedWriter.append(title + ": " + i +", ");
         } catch (Exception e) {
         }
     }
