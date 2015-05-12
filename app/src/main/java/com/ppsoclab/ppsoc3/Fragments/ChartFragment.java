@@ -195,7 +195,7 @@ public class ChartFragment extends Fragment implements DataListener{
                 yData1.add(new Entry(x1raw.get(i)/16, i));
                 yData2.add(new Entry(y1raw.get(i)/16, i));
                 yData3.add(new Entry(z1raw.get(i)/16, i));
-                xVals.add((0.1 * i) + " s");
+                xVals.add((0.01 * i) + " s");
             }
             LineDataSet lineDataSet1 = new LineDataSet(yData1, "X4ANGEL");
             lineDataSet1.setAxisDependency(YAxis.AxisDependency.LEFT);
@@ -234,7 +234,7 @@ public class ChartFragment extends Fragment implements DataListener{
             l.setTextColor(Color.BLACK);
             l.setPosition(Legend.LegendPosition.BELOW_CHART_LEFT);
             XAxis xAxis = lineChart.getXAxis();
-            xAxis.setLabelsToSkip(49);
+            xAxis.setLabelsToSkip(98);
             xAxis.setTextColor(Color.BLACK);
             xAxis.setDrawGridLines(false);
             xAxis.setDrawAxisLine(false);

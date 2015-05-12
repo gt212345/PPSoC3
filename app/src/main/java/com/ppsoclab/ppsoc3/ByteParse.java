@@ -1,7 +1,5 @@
 package com.ppsoclab.ppsoc3;
 
-import android.util.Log;
-
 /**
  * Created by heiruwu on 5/8/15.
  */
@@ -16,9 +14,6 @@ public class ByteParse {
 
     public static int sIN16FromByte(byte input){
         String temp = byteToString(input);
-//        String hsbString = temp.substring(0,3);
-//        String lsbString = temp.substring(4,7);
-//        int i = 10*((short)Integer.parseInt(hsbString,16))+((short)Integer.parseInt(lsbString,16));
         return Integer.parseInt(temp,2);
     }
 
@@ -26,7 +21,7 @@ public class ByteParse {
         String temp = byteToString(H);
         temp += byteToString(L);
         if(temp.substring(0,1).equals("1")){
-            return (-1*(65535 - Integer.parseInt(temp,2)));
+            return (-1*(65536 - Integer.parseInt(temp,2)));
         } else {
             return Integer.parseInt(temp,2);
         }
