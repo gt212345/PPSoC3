@@ -1,7 +1,7 @@
 package com.ppsoclab.ppsoc3;
 
 /**
- * Created by heiruwu on 5/8/15.
+ * Created by Heiru Wu on 5/8/15.
  */
 public class ByteParse {
     public static String byteToString(byte b){

@@ -25,8 +25,10 @@ import android.widget.Toast;
 
 import com.ppsoclab.ppsoc3.Fragments.ChartFragment;
 import com.ppsoclab.ppsoc3.Fragments.ConnectFragment;
+import com.ppsoclab.ppsoc3.Fragments.Zun1Fragment;
 import com.ppsoclab.ppsoc3.Interfaces.DataListener;
 import com.ppsoclab.ppsoc3.Interfaces.ModeChooseListener;
+import com.ppsoclab.ppsoc3.Interfaces.ZunDataListener;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,9 +51,11 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
     BluetoothSocket bluetoothSocket;
     List<BluetoothGattCharacteristic> characteristics;
     BluetoothGattCharacteristic characteristic;
+    BluetoothGattCharacteristic characteristicSet;
     InputStream inputStream;
-    UUID TARGET_UUID;
+    final static String TARGET_UUID = "00002902-0000-1000-8000-00805f9b34fb";
     DataListener dataListener;
+    ZunDataListener zunDataListener;
     byte[] temp;
 
 
@@ -64,6 +68,11 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
     private static final String MODE_NAME_1 = "GigaFu-F081";
     private static final String MODE_NAME_2 = "RNBT-719D";
     private static final String THREAD_NAME = "ConnectProcess";
+
+    private static final String SET_CH_ID = "0000fff7-0000-1000-8000-00805f9b34fb";
+    private static final String NOTI_CH_ID = "0000fff6-0000-1000-8000-00805f9b34fb";
+    private static final String DEVICE_UUID = "1f26fc65-0099-423c-637c-c99027417e7e";
+
 
     private static final int PACKET_SIZE = 100;
 
@@ -80,6 +89,10 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
                 super.onConnectionStateChange(gatt, status, newState);
                 if(newState == BluetoothProfile.STATE_CONNECTED) {
+                    fragment = new Zun1Fragment();
+                    fragmentManager.beginTransaction().replace(R.id.container,fragment).commit();
+                    zunDataListener = (Zun1Fragment) fragment;
+                    progressDialog.cancel();
                     bluetoothGatt.discoverServices();
                     isConnected = true;
                 }
@@ -88,29 +101,41 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
             @Override
             public void onServicesDiscovered(BluetoothGatt gatt, int status) {
                 super.onServicesDiscovered(gatt, status);
-                Log.w(TAG,"onServicesDiscovered");
                 List<BluetoothGattService> services = bluetoothGatt.getServices();
+                Log.w(TAG,"services size: " + services.size());
                 for (BluetoothGattService service : services) {
                     characteristics = service.getCharacteristics();
+                    for (BluetoothGattCharacteristic characteristic : characteristics){
+                        Log.w("Char ID",characteristic.getUuid().toString());
+                    }
                 }
-                characteristic = characteristics.get(5);
-                bluetoothGatt.setCharacteristicNotification(characteristic, true);
-                BluetoothGattDescriptor descriptor = characteristic.getDescriptors().get(0);
-                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                bluetoothGatt.writeDescriptor(descriptor);
-                Log.w(TAG, "notify");
+                Log.w(TAG,"chara size:"+characteristics.size());
+                if(characteristics.get(0).getUuid().equals(UUID.fromString(NOTI_CH_ID))) {
+                    characteristic = characteristics.get(0);
+                    bluetoothGatt.setCharacteristicNotification(characteristic, true);
+                    BluetoothGattDescriptor descriptor = characteristic.getDescriptors().get(0);
+//                BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID.nameUUIDFromBytes(TARGET_UUID.getBytes()));
+                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                    bluetoothGatt.writeDescriptor(descriptor);
+                }
+                if(characteristics.get(1).getUuid().equals(UUID.fromString(SET_CH_ID))){
+                    Log.w(TAG,"ss");
+                    characteristicSet = characteristics.get(1);
+                }
             }
 
             @Override
             public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristicLocal) {
                 super.onCharacteristicChanged(gatt, characteristic);
                 if (characteristic.equals(characteristicLocal)) {
+                    Log.w(TAG,"onCharacteristicChanged called");
                     data = characteristic.getValue();
-                    String str = "Data array : ";
-                    for (byte b : data){
-                        str += ByteParse.sIN16FromByte(b)+", ";
-                    }
-                    Log.w(TAG,str);
+                    zunDataListener.onDataFire(data);
+//                    String str = "Data array : ";
+//                    for (byte b : data){
+//                        str += ByteParse.sIN16FromByte(b)+", ";
+//                    }
+//                    Log.w(TAG,str);
                 }
             }
 
@@ -172,9 +197,9 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
 
     @Override
     public void onLeScan(BluetoothDevice bluetoothDevice, int i, byte[] bytes) {
-//        if(bluetoothDevice.){
+        if(bluetoothDevice.getName().equals(MODE_NAME_1)){
             bluetoothGatt = bluetoothDevice.connectGatt(this, false, bluetoothGattCallback);
-//        }
+        }
 
     }
 
