@@ -28,6 +28,7 @@ import com.ppsoclab.ppsoc3.Fragments.ConnectFragment;
 import com.ppsoclab.ppsoc3.Fragments.Zun1Fragment;
 import com.ppsoclab.ppsoc3.Interfaces.DataListener;
 import com.ppsoclab.ppsoc3.Interfaces.ModeChooseListener;
+import com.ppsoclab.ppsoc3.Interfaces.SetListener;
 import com.ppsoclab.ppsoc3.Interfaces.ZunDataListener;
 
 import java.io.IOException;
@@ -36,7 +37,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public class ModeActivity extends AppCompatActivity implements ModeChooseListener, BluetoothAdapter.LeScanCallback {
+public class ModeActivity extends AppCompatActivity implements ModeChooseListener, BluetoothAdapter.LeScanCallback, SetListener {
     ProgressDialog progressDialog;
     FragmentManager fragmentManager;
     Fragment fragment;
@@ -119,7 +120,6 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
                     bluetoothGatt.writeDescriptor(descriptor);
                 }
                 if(characteristics.get(1).getUuid().equals(UUID.fromString(SET_CH_ID))){
-                    Log.w(TAG,"ss");
                     characteristicSet = characteristics.get(1);
                 }
             }
@@ -281,4 +281,10 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
             }
         }
     };
+
+    @Override
+    public void onSet(byte b) {
+        BluetoothGattDescriptor bluetoothGattDescriptor = characteristicSet.getDescriptors().get(0);
+//        bluetoothGattDescriptor.setValue(b);
+    }
 }

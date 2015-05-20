@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.ppsoclab.ppsoc3.ByteParse;
+import com.ppsoclab.ppsoc3.Interfaces.SetListener;
 import com.ppsoclab.ppsoc3.Interfaces.ZunDataListener;
 import com.ppsoclab.ppsoc3.R;
 
@@ -16,7 +17,7 @@ import com.ppsoclab.ppsoc3.R;
  * Created by User on 2015/5/20.
  */
 public class Zun1Fragment extends Fragment implements ZunDataListener{
-
+    SetListener setListener;
     TextView textView;
     String str;
     @Nullable
