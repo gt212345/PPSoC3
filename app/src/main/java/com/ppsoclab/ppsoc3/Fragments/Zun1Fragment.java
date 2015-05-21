@@ -32,6 +32,7 @@ public class Zun1Fragment extends Fragment implements ZunDataListener{
     Spinner spinnerODR,spinnerRange,spinnerAxis;
     Button confirm;
     CheckBox sys;
+    byte set1,set2;
 
     private PopupWindow popupWindow;
     @Nullable
@@ -57,7 +58,7 @@ public class Zun1Fragment extends Fragment implements ZunDataListener{
                 spinnerAxis = (Spinner)view.findViewById(R.id.axisSpinner);
                 sys = (CheckBox) view.findViewById(R.id.sys);
                 confirm = (Button) view.findViewById(R.id.confirm);
-                popupWindow = new PopupWindow(view , getActivity().getWindowManager().getDefaultDisplay().getWidth()-50,getActivity().getWindowManager().getDefaultDisplay().getHeight()/2-250);
+                popupWindow = new PopupWindow(view , getActivity().getWindowManager().getDefaultDisplay().getWidth()-50,getActivity().getWindowManager().getDefaultDisplay().getHeight()/2-350);
                 confirm.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
