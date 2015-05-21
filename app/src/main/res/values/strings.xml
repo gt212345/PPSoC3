@@ -3,4 +3,23 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_set">SetActivity</string>
+    <string-array name="ODRArray">
+        <item>200Hz</item>
+        <item>100Hz(default)</item>
+        <item>50Hz</item>
+        <item>12.5Hz</item>
+        <item>6.25Hz</item>
+        <item>1.56Hz</item>
+    </string-array>
+    <string-array name="scaleRange">
+        <item>+-2(default)</item>
+        <item>+-4</item>
+        <item>+-8</item>
+    </string-array>
+    <string-array name="axis">
+        <item>x-axis parallel with gravity</item>
+        <item>y-axis parallel with gravity</item>
+        <item>z-axis parallel with gravity</item>
+    </string-array>
 </resources>

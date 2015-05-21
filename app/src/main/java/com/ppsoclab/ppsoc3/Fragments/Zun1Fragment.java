@@ -1,17 +1,22 @@
 package com.ppsoclab.ppsoc3.Fragments;
 
 import android.app.Fragment;
+import android.content.Intent;
+import android.graphics.AvoidXfermode;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.ppsoclab.ppsoc3.ByteParse;
 import com.ppsoclab.ppsoc3.Interfaces.SetListener;
 import com.ppsoclab.ppsoc3.Interfaces.ZunDataListener;
+import com.ppsoclab.ppsoc3.ModeActivity;
 import com.ppsoclab.ppsoc3.R;
+import com.ppsoclab.ppsoc3.SetActivity;
 
 /**
  * Created by User on 2015/5/20.
@@ -19,6 +24,7 @@ import com.ppsoclab.ppsoc3.R;
 public class Zun1Fragment extends Fragment implements ZunDataListener{
     SetListener setListener;
     TextView textView;
+    Button button;
     String str;
     @Nullable
     @Override
@@ -31,6 +37,16 @@ public class Zun1Fragment extends Fragment implements ZunDataListener{
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         textView = (TextView) getView().findViewById(R.id.set);
+        setListener = (ModeActivity) getActivity();
+        button = (Button) getView().findViewById(R.id.setButton);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setClass(getActivity(), SetActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
