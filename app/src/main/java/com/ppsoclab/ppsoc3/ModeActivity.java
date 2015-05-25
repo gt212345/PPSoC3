@@ -226,9 +226,20 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
     @Override
     protected void onStop() {
         super.onStop();
+        Log.w(TAG,"stop");
+        bluetoothGattCallback = null;
+        bluetoothAdapter.stopLeScan(this);
         bluetoothGatt.disconnect();
         bluetoothGatt.close();
+        bluetoothAdapter.cancelDiscovery();
     }
+
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        bluetoothGatt.disconnect();
+//        bluetoothGatt.close();
+//    }
 
     private void findBT() {
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
