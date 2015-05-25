@@ -68,6 +68,60 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
                 confirm.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        String temp = "";
+                        switch (spinnerODR.getSelectedItemPosition()){
+                            case 0:
+                                temp += "010";
+                                break;
+                            case 1:
+                                temp += "011";
+                                break;
+                            case 2:
+                                temp += "100";
+                                break;
+                            case 3:
+                                temp += "101";
+                                break;
+                            case 4:
+                                temp += "110";
+                                break;
+                            case 5:
+                                temp += "111";
+                                break;
+                        }
+                        switch (spinnerRange.getSelectedItemPosition()) {
+                            case 0:
+                                temp += "00";
+                                break;
+                            case 1:
+                                temp += "01";
+                                break;
+                            case 2:
+                                temp += "10";
+                                break;
+                        }
+                        if(sys.isChecked()){
+                            temp += "1";
+                        } else {
+                            temp += "0";
+                        }
+                        switch (spinnerAxis.getSelectedItemPosition()) {
+                            case 0:
+                                temp += "00";
+                                break;
+                            case 1:
+                                temp += "01";
+                                break;
+                            case 2:
+                                temp += "10";
+                                break;
+                        }
+                        if(temp.substring(0,1).equals("1")){
+                            setListener.onSet((byte)Integer.parseInt(temp,2));
+                        } else {
+                            setListener.onSet(Byte.parseByte(temp,2));
+                        }
+
                         popupWindow.dismiss();
                     }
                 });
@@ -87,19 +141,19 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
         str += "ANGLE_X: " + ByteParse.sIN16From2Byte(data[8],data[9])/128 + "\n";
         str += "ANGLE_Y: " + ByteParse.sIN16From2Byte(data[10],data[11])/128 + "\n";
         str += "ANGLE_Z: " + ByteParse.sIN16From2Byte(data[12], data[13])/128 + "\n";
-        if(ByteParse.sIN16From2Byte(data[12],data[13])>3840){
+        if(ByteParse.sIN16From2Byte(data[12],data[13])>15360){
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    imageView.setImageResource(R.drawable.awake);
+                    imageView.setImageResource(R.drawable.bow);
                 }
             });
 
-        } else if (ByteParse.sIN16From2Byte(data[12],data[13])<3840) {
+        } else if (ByteParse.sIN16From2Byte(data[12],data[13])<15360) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    imageView.setImageResource(R.drawable.sleep);
+                    imageView.setImageResource(R.drawable.normal);
                 }
             });
         }
