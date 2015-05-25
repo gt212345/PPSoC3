@@ -86,12 +86,23 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
         str += "ACC_Z: " + ByteParse.sIN16From2Byte(data[6],data[7]) + "\n";
         str += "ANGLE_X: " + ByteParse.sIN16From2Byte(data[8],data[9])/128 + "\n";
         str += "ANGLE_Y: " + ByteParse.sIN16From2Byte(data[10],data[11])/128 + "\n";
-        if(ByteParse.sIN16From2Byte(data[10],data[11])>3840){
-            imageView.setImageResource(R.drawable.awake);
-        } else if (ByteParse.sIN16From2Byte(data[10],data[11])<3840) {
-            imageView.setImageResource(R.drawable.sleep);
-        }
         str += "ANGLE_Z: " + ByteParse.sIN16From2Byte(data[12], data[13])/128 + "\n";
+        if(ByteParse.sIN16From2Byte(data[12],data[13])>3840){
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    imageView.setImageResource(R.drawable.awake);
+                }
+            });
+
+        } else if (ByteParse.sIN16From2Byte(data[12],data[13])<3840) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    imageView.setImageResource(R.drawable.sleep);
+                }
+            });
+        }
         str += "SUM: " + ByteParse.sIN16FromByte(data[14]) + "\n";
         str += "TAIL: " + ByteParse.sIN16FromByte(data[15]);
         getActivity().runOnUiThread(new Runnable() {

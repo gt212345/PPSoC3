@@ -3,6 +3,7 @@ package com.ppsoclab.ppsoc3.Fragments;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,11 +23,12 @@ import com.ppsoclab.ppsoc3.R;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigInteger;
 
 /**
  * Created by User on 2015/5/20.
  */
-public class Zun1Fragment extends Fragment implements ZunDataListener{
+public class Zun1Fragment extends Fragment implements ZunDataListener {
     SetListener setListener;
     TextView textView;
     Button button;
@@ -40,7 +42,7 @@ public class Zun1Fragment extends Fragment implements ZunDataListener{
     CheckBox sys;
     FileWriter fileWriter;
     BufferedWriter bufferedWriter;
-    byte set1,set2;
+    int set1,set2;
 
     private PopupWindow popupWindow;
     @Nullable
@@ -60,6 +62,7 @@ public class Zun1Fragment extends Fragment implements ZunDataListener{
 //
 //        }
         imageView = (ImageView) getView().findViewById(R.id.image);
+        imageView.setImageResource(R.drawable.sleep);
         textView = (TextView) getView().findViewById(R.id.set);
         setListener = (ModeActivity) getActivity();
         button = (Button) getView().findViewById(R.id.setButton);
@@ -77,10 +80,64 @@ public class Zun1Fragment extends Fragment implements ZunDataListener{
                 confirm.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        String temp = "";
+                        switch (spinnerODR.getSelectedItemPosition()){
+                            case 0:
+                                temp += "010";
+                                break;
+                            case 1:
+                                temp += "011";
+                                break;
+                            case 2:
+                                temp += "100";
+                                break;
+                            case 3:
+                                temp += "101";
+                                break;
+                            case 4:
+                                temp += "110";
+                                break;
+                            case 5:
+                                temp += "111";
+                                break;
+                        }
+                        switch (spinnerRange.getSelectedItemPosition()) {
+                            case 0:
+                                temp += "00";
+                                break;
+                            case 1:
+                                temp += "01";
+                                break;
+                            case 2:
+                                temp += "10";
+                                break;
+                        }
+                        if(sys.isChecked()){
+                            temp += "1";
+                        } else {
+                            temp += "0";
+                        }
+                        switch (spinnerAxis.getSelectedItemPosition()) {
+                            case 0:
+                                temp += "00";
+                                break;
+                            case 1:
+                                temp += "01";
+                                break;
+                            case 2:
+                                temp += "10";
+                                break;
+                        }
+                        if(temp.substring(0,1).equals("1")){
+                            setListener.onSet((byte)Integer.parseInt(temp,2));
+                        } else {
+                            setListener.onSet(Byte.parseByte(temp,2));
+                        }
+
                         popupWindow.dismiss();
                     }
                 });
-                popupWindow.showAsDropDown(v,25,0);
+                popupWindow.showAsDropDown(v, 25, 0);
             }
         });
     }
@@ -96,9 +153,20 @@ public class Zun1Fragment extends Fragment implements ZunDataListener{
         str += "ANGLE_X: " + ByteParse.sIN16From2Byte(data[8],data[9])/128 + "\n";
         str += "ANGLE_Y: " + ByteParse.sIN16From2Byte(data[10],data[11])/128 + "\n";
         if(ByteParse.sIN16From2Byte(data[10],data[11])>3840){
-            imageView.setImageResource(R.drawable.awake);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    imageView.setImageResource(R.drawable.awake);
+                }
+            });
+
         } else if (ByteParse.sIN16From2Byte(data[10],data[11])<3840) {
-            imageView.setImageResource(R.drawable.sleep);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    imageView.setImageResource(R.drawable.sleep);
+                }
+            });
         }
         str += "ANGLE_Z: " + ByteParse.sIN16From2Byte(data[12], data[13])/128 + "\n";
         str += "SUM: " + ByteParse.sIN16FromByte(data[14]) + "\n";

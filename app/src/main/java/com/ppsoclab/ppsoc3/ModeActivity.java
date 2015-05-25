@@ -89,6 +89,7 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
         switchF = (Button) findViewById(R.id.switchF);
         switchF.setOnClickListener(this);
         switchF.setVisibility(View.INVISIBLE);
+        switchF.setClickable(false);
         temp = new byte[PACKET_SIZE];
         context = getApplicationContext();
         /*BLE setup*/
@@ -142,7 +143,6 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
             public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristicLocal) {
                 super.onCharacteristicChanged(gatt, characteristic);
                 if (characteristic.equals(characteristicLocal)) {
-                    Log.w(TAG,"onCharacteristicChanged called");
                     data = characteristic.getValue();
                     zunDataListener.onDataFire(data);
 //                    String str = "Data array : ";
@@ -187,6 +187,7 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
         switch (mode) {
             case 0:
                 switchF.setVisibility(View.VISIBLE);
+                switchF.setClickable(true);
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -303,8 +304,15 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
 
     @Override
     public void onSet(byte b) {
-        BluetoothGattDescriptor bluetoothGattDescriptor = characteristicSet.getDescriptors().get(0);
-//        bluetoothGattDescriptor.setValue(b);
+//        BluetoothGattDescriptor bluetoothGattDescriptor = characteristicSet.getDescriptors().get(0);
+        byte[] value = new byte[2];
+        value[0] = b;
+        value[1] = 8;
+        characteristicSet.setValue(value);
+        bluetoothGatt.writeCharacteristic(characteristicSet);
+//        bluetoothGattDescriptor.setValue(value);
+//        bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
+        Log.w(TAG,"set:" + value[0]);
     }
 
     @Override
