@@ -18,6 +18,10 @@ import com.ppsoclab.ppsoc3.Interfaces.ZunDataListener;
 import com.ppsoclab.ppsoc3.ModeActivity;
 import com.ppsoclab.ppsoc3.R;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
 /**
  * Created by User on 2015/5/20.
  */
@@ -32,6 +36,8 @@ public class Zun1Fragment extends Fragment implements ZunDataListener{
     Spinner spinnerODR,spinnerRange,spinnerAxis;
     Button confirm;
     CheckBox sys;
+    FileWriter fileWriter;
+    BufferedWriter bufferedWriter;
     byte set1,set2;
 
     private PopupWindow popupWindow;
@@ -45,6 +51,12 @@ public class Zun1Fragment extends Fragment implements ZunDataListener{
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        try {
+            fileWriter = new FileWriter("/sdcard/raw.txt");
+            bufferedWriter = new BufferedWriter(fileWriter);
+        } catch (IOException e){
+
+        }
         textView = (TextView) getView().findViewById(R.id.set);
         setListener = (ModeActivity) getActivity();
         button = (Button) getView().findViewById(R.id.setButton);
@@ -78,9 +90,9 @@ public class Zun1Fragment extends Fragment implements ZunDataListener{
         str += "ACC_X: " + ByteParse.sIN16From2Byte(data[2], data[3]) + "\n";
         str += "ACC_Y: " + ByteParse.sIN16From2Byte(data[4],data[5]) + "\n";
         str += "ACC_Z: " + ByteParse.sIN16From2Byte(data[6],data[7]) + "\n";
-        str += "ANGLE_X: " + ByteParse.sIN16From2Byte(data[8],data[9]) + "\n";
-        str += "ANGLE_Y: " + ByteParse.sIN16From2Byte(data[10],data[11]) + "\n";
-        str += "ANGLE_Z: " + ByteParse.sIN16From2Byte(data[12], data[13]) + "\n";
+        str += "ANGLE_X: " + ByteParse.sIN16From2Byte(data[8],data[9])/128 + "\n";
+        str += "ANGLE_Y: " + ByteParse.sIN16From2Byte(data[10],data[11])/128 + "\n";
+        str += "ANGLE_Z: " + ByteParse.sIN16From2Byte(data[12], data[13])/128 + "\n";
         str += "SUM: " + ByteParse.sIN16FromByte(data[14]) + "\n";
         str += "TAIL: " + ByteParse.sIN16FromByte(data[15]);
         getActivity().runOnUiThread(new Runnable() {
@@ -89,5 +101,15 @@ public class Zun1Fragment extends Fragment implements ZunDataListener{
                 textView.setText(str);
             }
         });
+        writeToSD(ByteParse.sIN16From2Byte(data[8], data[9]) / 128, "\r\nANGLE_X");
+        writeToSD(ByteParse.sIN16From2Byte(data[10], data[11]) / 128, "ANGLE_Y");
+        writeToSD(ByteParse.sIN16From2Byte(data[12],data[13]) / 128,"ANGLE_Z");
+    }
+
+    private void writeToSD (int i, String title) {
+        try {
+            bufferedWriter.append(title + ": " + i +" ");
+        } catch (Exception e) {
+        }
     }
 }
