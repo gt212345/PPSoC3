@@ -2,6 +2,7 @@ package com.ppsoclab.ppsoc3;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -21,23 +22,24 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
-
 import com.ppsoclab.ppsoc3.Fragments.ChartFragment;
 import com.ppsoclab.ppsoc3.Fragments.ConnectFragment;
 import com.ppsoclab.ppsoc3.Fragments.Zun1Fragment;
+import com.ppsoclab.ppsoc3.Fragments.Zun2Fragment;
 import com.ppsoclab.ppsoc3.Interfaces.DataListener;
 import com.ppsoclab.ppsoc3.Interfaces.ModeChooseListener;
 import com.ppsoclab.ppsoc3.Interfaces.SetListener;
 import com.ppsoclab.ppsoc3.Interfaces.ZunDataListener;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public class ModeActivity extends AppCompatActivity implements ModeChooseListener, BluetoothAdapter.LeScanCallback, SetListener {
+public class ModeActivity extends AppCompatActivity implements ModeChooseListener, BluetoothAdapter.LeScanCallback, SetListener, View.OnClickListener {
     ProgressDialog progressDialog;
     FragmentManager fragmentManager;
     Fragment fragment;
@@ -57,7 +59,10 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
     final static String TARGET_UUID = "00002902-0000-1000-8000-00805f9b34fb";
     DataListener dataListener;
     ZunDataListener zunDataListener;
+    Button switchF;
+    FragmentTransaction fragmentTransaction;
     byte[] temp;
+    int position = 0;
 
 
     boolean isConnected = false;
@@ -80,6 +85,10 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_mode);
+        switchF = (Button) findViewById(R.id.switchF);
+        switchF.setOnClickListener(this);
+        switchF.setVisibility(View.INVISIBLE);
         temp = new byte[PACKET_SIZE];
         context = getApplicationContext();
         /*BLE setup*/
@@ -91,7 +100,12 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
                 super.onConnectionStateChange(gatt, status, newState);
                 if(newState == BluetoothProfile.STATE_CONNECTED) {
                     fragment = new Zun1Fragment();
-                    fragmentManager.beginTransaction().replace(R.id.container,fragment).commit();
+                    fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.container,fragment);
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                    fragmentTransaction.commit();
+                    position = 0;
                     zunDataListener = (Zun1Fragment) fragment;
                     progressDialog.cancel();
                     bluetoothGatt.discoverServices();
@@ -144,10 +158,13 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
                 super.onCharacteristicRead(gatt, characteristic, status);
             }
         };
-        setContentView(R.layout.activity_mode);
         fragmentManager = getFragmentManager();
+        fragmentTransaction = fragmentManager.beginTransaction();
         fragment = new ConnectFragment();
-        fragmentManager.beginTransaction().replace(R.id.container,fragment).commit();
+        fragmentTransaction.replace(R.id.container, fragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        fragmentTransaction.commit();
         toast = Toast.makeText(this,"", Toast.LENGTH_SHORT);
         handlerThread = new HandlerThread(THREAD_NAME);
         handlerThread.start();
@@ -161,6 +178,7 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
             toast.show();
             finish();
         }
+
     }
 
     @Override
@@ -168,6 +186,7 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
         progressDialog = ProgressDialog.show(this, "Please wait", "Connecting......", true);
         switch (mode) {
             case 0:
+                switchF.setVisibility(View.VISIBLE);
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -286,5 +305,28 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
     public void onSet(byte b) {
         BluetoothGattDescriptor bluetoothGattDescriptor = characteristicSet.getDescriptors().get(0);
 //        bluetoothGattDescriptor.setValue(b);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(position == 0) {
+            position++;
+            fragmentTransaction = fragmentManager.beginTransaction();
+            fragment = new Zun2Fragment();
+            zunDataListener = (Zun2Fragment) fragment;
+            fragmentTransaction.replace(R.id.container, fragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            fragmentTransaction.commit();
+        } else {
+            position = 0;
+            fragmentTransaction = fragmentManager.beginTransaction();
+            fragment = new Zun1Fragment();
+            zunDataListener = (Zun1Fragment) fragment;
+            fragmentTransaction.replace(R.id.container, fragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            fragmentTransaction.commit();
+        }
     }
 }

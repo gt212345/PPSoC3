@@ -23,6 +23,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.github.PhilJay:MPAndroidChart:v2.1.0'
+    compile project(':androidblelibrary')
 }
 repositories {
     maven { url "https://jitpack.io" }

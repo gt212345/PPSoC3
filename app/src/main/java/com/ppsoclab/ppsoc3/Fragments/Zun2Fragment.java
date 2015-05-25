@@ -21,12 +21,11 @@ import com.ppsoclab.ppsoc3.R;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.io.IOException;
 
 /**
- * Created by User on 2015/5/20.
+ * Created by User on 2015/5/25.
  */
-public class Zun1Fragment extends Fragment implements ZunDataListener{
+public class Zun2Fragment extends Fragment implements ZunDataListener{
     SetListener setListener;
     TextView textView;
     Button button;
@@ -38,8 +37,6 @@ public class Zun1Fragment extends Fragment implements ZunDataListener{
     Spinner spinnerODR,spinnerRange,spinnerAxis;
     Button confirm;
     CheckBox sys;
-    FileWriter fileWriter;
-    BufferedWriter bufferedWriter;
     byte set1,set2;
 
     private PopupWindow popupWindow;
@@ -53,12 +50,6 @@ public class Zun1Fragment extends Fragment implements ZunDataListener{
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-//        try {
-//            fileWriter = new FileWriter("/sdcard/raw.txt");
-//            bufferedWriter = new BufferedWriter(fileWriter);
-//        } catch (IOException e){
-//
-//        }
         imageView = (ImageView) getView().findViewById(R.id.image);
         textView = (TextView) getView().findViewById(R.id.set);
         setListener = (ModeActivity) getActivity();
@@ -109,15 +100,6 @@ public class Zun1Fragment extends Fragment implements ZunDataListener{
                 textView.setText(str);
             }
         });
-//        writeToSD(ByteParse.sIN16From2Byte(data[8], data[9]) / 128, "\r\nANGLE_X");
-//        writeToSD(ByteParse.sIN16From2Byte(data[10], data[11]) / 128, "ANGLE_Y");
-//        writeToSD(ByteParse.sIN16From2Byte(data[12],data[13]) / 128,"ANGLE_Z");
     }
 
-    private void writeToSD (int i, String title) {
-        try {
-            bufferedWriter.append(title + ": " + i +" ");
-        } catch (Exception e) {
-        }
-    }
 }
