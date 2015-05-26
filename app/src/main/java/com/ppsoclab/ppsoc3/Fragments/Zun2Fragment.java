@@ -1,11 +1,17 @@
 package com.ppsoclab.ppsoc3.Fragments;
 
 import android.app.Fragment;
+import android.app.Service;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -31,6 +37,10 @@ public class Zun2Fragment extends Fragment implements ZunDataListener, View.OnCl
     Button button;
     String str;
     ImageView imageView;
+    HandlerThread thread;
+    Handler handler;
+    Animation anim;
+    Vibrator vibrator;
     /**
      * Views for popup window
      */
@@ -38,6 +48,7 @@ public class Zun2Fragment extends Fragment implements ZunDataListener, View.OnCl
     Button confirm;
     CheckBox sys;
     byte set1,set2;
+    boolean play = false;
 
     private PopupWindow popupWindow;
     @Nullable
@@ -50,9 +61,18 @@ public class Zun2Fragment extends Fragment implements ZunDataListener, View.OnCl
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        vibrator = (Vibrator) getActivity().getSystemService(Service.VIBRATOR_SERVICE);
+        anim = new AlphaAnimation(0.0f, 1.0f);
+        anim.setDuration(500);
+        anim.setRepeatMode(Animation.REVERSE);
+        anim.setRepeatCount(15);
         imageView = (ImageView) getView().findViewById(R.id.image);
         textView = (TextView) getView().findViewById(R.id.set);
         setListener = (ModeActivity) getActivity();
+        thread = new HandlerThread("");
+        thread.start();
+        handler = new Handler(thread.getLooper());
+        handler.post(vibrate);
         button = (Button) getView().findViewById(R.id.setButton);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,6 +105,7 @@ public class Zun2Fragment extends Fragment implements ZunDataListener, View.OnCl
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    play = true;
                     imageView.setImageResource(R.drawable.fox);
                 }
             });
@@ -93,6 +114,9 @@ public class Zun2Fragment extends Fragment implements ZunDataListener, View.OnCl
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    play = false;
+                    vibrator.cancel();
+                    imageView.clearAnimation();
                     imageView.setImageResource(R.drawable.normal);
                 }
             });
@@ -166,4 +190,26 @@ public class Zun2Fragment extends Fragment implements ZunDataListener, View.OnCl
 
         popupWindow.dismiss();
     }
+
+    private Runnable vibrate = new Runnable() {
+        @Override
+        public void run() {
+            while (true) {
+                if(play) {
+                    vibrator.vibrate(1000);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            imageView.startAnimation(anim);
+                        }
+                    });
+                    try {
+                        Thread.sleep(950);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    };
 }

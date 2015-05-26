@@ -52,9 +52,9 @@ public class Zun1Fragment extends Fragment implements ZunDataListener, View.OnCl
     CheckBox sys;
     FileWriter fileWriter;
     BufferedWriter bufferedWriter;
-    LinearLayout linearLayout;
     Animation anim;
     Thread workThread;
+    boolean play = false;
     int set1,set2;
 
     private PopupWindow popupWindow;
@@ -68,11 +68,10 @@ public class Zun1Fragment extends Fragment implements ZunDataListener, View.OnCl
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        linearLayout = (LinearLayout)getView().findViewById(R.id.background);
         anim = new AlphaAnimation(0.0f, 1.0f);
         anim.setDuration(500);
         anim.setRepeatMode(Animation.REVERSE);
-        anim.setRepeatCount(10);
+        anim.setRepeatCount(15);
 //        try {
 //            fileWriter = new FileWriter("/sdcard/raw.txt");
 //            bufferedWriter = new BufferedWriter(fileWriter);
@@ -82,6 +81,7 @@ public class Zun1Fragment extends Fragment implements ZunDataListener, View.OnCl
         thread = new HandlerThread("");
         thread.start();
         handler = new Handler(thread.getLooper());
+        handler.post(warn);
         mediaPlayer = new MediaPlayer();
         imageView = (ImageView) getView().findViewById(R.id.image);
         imageView.setImageResource(R.drawable.sleep);
@@ -116,15 +116,16 @@ public class Zun1Fragment extends Fragment implements ZunDataListener, View.OnCl
         str += "ANGLE_X: " + ByteParse.sIN16From2Byte(data[8],data[9])/128 + "\n";
         str += "ANGLE_Y: " + ByteParse.sIN16From2Byte(data[10],data[11])/128 + "\n";
         if(ByteParse.sIN16From2Byte(data[10],data[11])>3840){
+            play = true;
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    playWarn();
                     imageView.setImageResource(R.drawable.awake);
                 }
             });
 
         } else if (ByteParse.sIN16From2Byte(data[10],data[11])<3840) {
+            play = false;
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -212,11 +213,11 @@ public class Zun1Fragment extends Fragment implements ZunDataListener, View.OnCl
         popupWindow.dismiss();
     }
 
-    private void playWarn() {
-        if(!thread.isAlive()) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
+    private Runnable warn = new Runnable() {
+        @Override
+        public void run() {
+            while (true) {
+                if (play) {
                     try {
                         mediaPlayer.reset();
                         mediaPlayer.setDataSource("/sdcard/warn.mp3");
@@ -225,14 +226,21 @@ public class Zun1Fragment extends Fragment implements ZunDataListener, View.OnCl
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                linearLayout.startAnimation(anim);
+                                imageView.startAnimation(anim);
                             }
                         });
+                        Thread.sleep(10000);
                     } catch (IOException e) {
                         Log.w("WelcomeActivity", e.toString());
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
-            });
+            }
         }
+    };
+
+    private void playWarn() {
+        handler.post(warn);
     }
 }
