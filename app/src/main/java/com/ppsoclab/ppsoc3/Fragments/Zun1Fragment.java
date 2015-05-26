@@ -1,15 +1,22 @@
 package com.ppsoclab.ppsoc3.Fragments;
 
 import android.app.Fragment;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -28,12 +35,15 @@ import java.math.BigInteger;
 /**
  * Created by User on 2015/5/20.
  */
-public class Zun1Fragment extends Fragment implements ZunDataListener {
+public class Zun1Fragment extends Fragment implements ZunDataListener, View.OnClickListener {
     SetListener setListener;
     TextView textView;
     Button button;
     String str;
     ImageView imageView;
+    MediaPlayer mediaPlayer;
+    HandlerThread thread;
+    Handler handler;
     /**
      * Views for popup window
      */
@@ -42,6 +52,9 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
     CheckBox sys;
     FileWriter fileWriter;
     BufferedWriter bufferedWriter;
+    LinearLayout linearLayout;
+    Animation anim;
+    Thread workThread;
     int set1,set2;
 
     private PopupWindow popupWindow;
@@ -55,12 +68,21 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        linearLayout = (LinearLayout)getView().findViewById(R.id.background);
+        anim = new AlphaAnimation(0.0f, 1.0f);
+        anim.setDuration(500);
+        anim.setRepeatMode(Animation.REVERSE);
+        anim.setRepeatCount(10);
 //        try {
 //            fileWriter = new FileWriter("/sdcard/raw.txt");
 //            bufferedWriter = new BufferedWriter(fileWriter);
 //        } catch (IOException e){
 //
 //        }
+        thread = new HandlerThread("");
+        thread.start();
+        handler = new Handler(thread.getLooper());
+        mediaPlayer = new MediaPlayer();
         imageView = (ImageView) getView().findViewById(R.id.image);
         imageView.setImageResource(R.drawable.sleep);
         textView = (TextView) getView().findViewById(R.id.set);
@@ -77,66 +99,7 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
                 sys = (CheckBox) view.findViewById(R.id.sys);
                 confirm = (Button) view.findViewById(R.id.confirm);
                 popupWindow = new PopupWindow(view , getActivity().getWindowManager().getDefaultDisplay().getWidth()-50,getActivity().getWindowManager().getDefaultDisplay().getHeight()/2-350);
-                confirm.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String temp = "";
-                        switch (spinnerODR.getSelectedItemPosition()){
-                            case 0:
-                                temp += "010";
-                                break;
-                            case 1:
-                                temp += "011";
-                                break;
-                            case 2:
-                                temp += "100";
-                                break;
-                            case 3:
-                                temp += "101";
-                                break;
-                            case 4:
-                                temp += "110";
-                                break;
-                            case 5:
-                                temp += "111";
-                                break;
-                        }
-                        switch (spinnerRange.getSelectedItemPosition()) {
-                            case 0:
-                                temp += "00";
-                                break;
-                            case 1:
-                                temp += "01";
-                                break;
-                            case 2:
-                                temp += "10";
-                                break;
-                        }
-                        if(sys.isChecked()){
-                            temp += "1";
-                        } else {
-                            temp += "0";
-                        }
-                        switch (spinnerAxis.getSelectedItemPosition()) {
-                            case 0:
-                                temp += "00";
-                                break;
-                            case 1:
-                                temp += "01";
-                                break;
-                            case 2:
-                                temp += "10";
-                                break;
-                        }
-                        if(temp.substring(0,1).equals("1")){
-                            setListener.onSet((byte)Integer.parseInt(temp,2));
-                        } else {
-                            setListener.onSet(Byte.parseByte(temp,2));
-                        }
-
-                        popupWindow.dismiss();
-                    }
-                });
+                confirm.setOnClickListener(this);
                 popupWindow.showAsDropDown(v, 25, 0);
             }
         });
@@ -156,6 +119,7 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    playWarn();
                     imageView.setImageResource(R.drawable.awake);
                 }
             });
@@ -186,6 +150,89 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
         try {
             bufferedWriter.append(title + ": " + i +" ");
         } catch (Exception e) {
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        String temp = "";
+        switch (spinnerODR.getSelectedItemPosition()){
+            case 0:
+                temp += "010";
+                break;
+            case 1:
+                temp += "011";
+                break;
+            case 2:
+                temp += "100";
+                break;
+            case 3:
+                temp += "101";
+                break;
+            case 4:
+                temp += "110";
+                break;
+            case 5:
+                temp += "111";
+                break;
+        }
+        switch (spinnerRange.getSelectedItemPosition()) {
+            case 0:
+                temp += "00";
+                break;
+            case 1:
+                temp += "01";
+                break;
+            case 2:
+                temp += "10";
+                break;
+        }
+        if(sys.isChecked()){
+            temp += "1";
+        } else {
+            temp += "0";
+        }
+        switch (spinnerAxis.getSelectedItemPosition()) {
+            case 0:
+                temp += "00";
+                break;
+            case 1:
+                temp += "01";
+                break;
+            case 2:
+                temp += "10";
+                break;
+        }
+        if(temp.substring(0,1).equals("1")){
+            setListener.onSet((byte)Integer.parseInt(temp,2));
+        } else {
+            setListener.onSet(Byte.parseByte(temp,2));
+        }
+
+        popupWindow.dismiss();
+    }
+
+    private void playWarn() {
+        if(!thread.isAlive()) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        mediaPlayer.reset();
+                        mediaPlayer.setDataSource("/sdcard/warn.mp3");
+                        mediaPlayer.prepare();
+                        mediaPlayer.start();
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                linearLayout.startAnimation(anim);
+                            }
+                        });
+                    } catch (IOException e) {
+                        Log.w("WelcomeActivity", e.toString());
+                    }
+                }
+            });
         }
     }
 }

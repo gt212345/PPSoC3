@@ -178,7 +178,6 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
             toast.show();
             finish();
         }
-
     }
 
     @Override

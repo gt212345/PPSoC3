@@ -25,7 +25,7 @@ import java.io.FileWriter;
 /**
  * Created by User on 2015/5/25.
  */
-public class Zun2Fragment extends Fragment implements ZunDataListener{
+public class Zun2Fragment extends Fragment implements ZunDataListener, View.OnClickListener{
     SetListener setListener;
     TextView textView;
     Button button;
@@ -65,66 +65,7 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
                 sys = (CheckBox) view.findViewById(R.id.sys);
                 confirm = (Button) view.findViewById(R.id.confirm);
                 popupWindow = new PopupWindow(view , getActivity().getWindowManager().getDefaultDisplay().getWidth()-50,getActivity().getWindowManager().getDefaultDisplay().getHeight()/2-350);
-                confirm.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String temp = "";
-                        switch (spinnerODR.getSelectedItemPosition()){
-                            case 0:
-                                temp += "010";
-                                break;
-                            case 1:
-                                temp += "011";
-                                break;
-                            case 2:
-                                temp += "100";
-                                break;
-                            case 3:
-                                temp += "101";
-                                break;
-                            case 4:
-                                temp += "110";
-                                break;
-                            case 5:
-                                temp += "111";
-                                break;
-                        }
-                        switch (spinnerRange.getSelectedItemPosition()) {
-                            case 0:
-                                temp += "00";
-                                break;
-                            case 1:
-                                temp += "01";
-                                break;
-                            case 2:
-                                temp += "10";
-                                break;
-                        }
-                        if(sys.isChecked()){
-                            temp += "1";
-                        } else {
-                            temp += "0";
-                        }
-                        switch (spinnerAxis.getSelectedItemPosition()) {
-                            case 0:
-                                temp += "00";
-                                break;
-                            case 1:
-                                temp += "01";
-                                break;
-                            case 2:
-                                temp += "10";
-                                break;
-                        }
-                        if(temp.substring(0,1).equals("1")){
-                            setListener.onSet((byte)Integer.parseInt(temp,2));
-                        } else {
-                            setListener.onSet(Byte.parseByte(temp,2));
-                        }
-
-                        popupWindow.dismiss();
-                    }
-                });
+                confirm.setOnClickListener(this);
                 popupWindow.showAsDropDown(v,25,0);
             }
         });
@@ -140,16 +81,15 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
         str += "ACC_Z: " + ByteParse.sIN16From2Byte(data[6],data[7]) + "\n";
         str += "ANGLE_X: " + ByteParse.sIN16From2Byte(data[8],data[9])/128 + "\n";
         str += "ANGLE_Y: " + ByteParse.sIN16From2Byte(data[10],data[11])/128 + "\n";
-        str += "ANGLE_Z: " + ByteParse.sIN16From2Byte(data[12], data[13])/128 + "\n";
-        if(ByteParse.sIN16From2Byte(data[12],data[13])>15360){
+        if(ByteParse.sIN16From2Byte(data[10],data[11])<7680){
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    imageView.setImageResource(R.drawable.bow);
+                    imageView.setImageResource(R.drawable.fox);
                 }
             });
 
-        } else if (ByteParse.sIN16From2Byte(data[12],data[13])<15360) {
+        } else if (ByteParse.sIN16From2Byte(data[10],data[11])>7680) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -157,6 +97,7 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
                 }
             });
         }
+        str += "ANGLE_Z: " + ByteParse.sIN16From2Byte(data[12], data[13])/128 + "\n";
         str += "SUM: " + ByteParse.sIN16FromByte(data[14]) + "\n";
         str += "TAIL: " + ByteParse.sIN16FromByte(data[15]);
         getActivity().runOnUiThread(new Runnable() {
@@ -167,4 +108,62 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
         });
     }
 
+    @Override
+    public void onClick(View v) {
+        String temp = "";
+        switch (spinnerODR.getSelectedItemPosition()){
+            case 0:
+                temp += "010";
+                break;
+            case 1:
+                temp += "011";
+                break;
+            case 2:
+                temp += "100";
+                break;
+            case 3:
+                temp += "101";
+                break;
+            case 4:
+                temp += "110";
+                break;
+            case 5:
+                temp += "111";
+                break;
+        }
+        switch (spinnerRange.getSelectedItemPosition()) {
+            case 0:
+                temp += "00";
+                break;
+            case 1:
+                temp += "01";
+                break;
+            case 2:
+                temp += "10";
+                break;
+        }
+        if(sys.isChecked()){
+            temp += "1";
+        } else {
+            temp += "0";
+        }
+        switch (spinnerAxis.getSelectedItemPosition()) {
+            case 0:
+                temp += "00";
+                break;
+            case 1:
+                temp += "01";
+                break;
+            case 2:
+                temp += "10";
+                break;
+        }
+        if(temp.substring(0,1).equals("1")){
+            setListener.onSet((byte)Integer.parseInt(temp,2));
+        } else {
+            setListener.onSet(Byte.parseByte(temp,2));
+        }
+
+        popupWindow.dismiss();
+    }
 }
