@@ -175,7 +175,6 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
                 @Override
                 public void run() {
                     play = false;
-                    vibrator.cancel();
                     imageView.clearAnimation();
                     imageView.setImageResource(R.drawable.normal);
                 }
@@ -215,6 +214,8 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                } else {
+                    vibrator.cancel();
                 }
             }
         }

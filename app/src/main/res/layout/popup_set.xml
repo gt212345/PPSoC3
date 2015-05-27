@@ -85,7 +85,15 @@
         </Spinner>
 
 
+
     </LinearLayout>
+
+    <EditText
+        android:id="@+id/phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter emergency phone number"
+        android:inputType="number"/>
 
     <Button
         android:id="@+id/confirm"
