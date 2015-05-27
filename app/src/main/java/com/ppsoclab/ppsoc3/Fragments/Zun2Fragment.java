@@ -31,7 +31,7 @@ import java.io.FileWriter;
 /**
  * Created by User on 2015/5/25.
  */
-public class Zun2Fragment extends Fragment implements ZunDataListener, View.OnClickListener{
+public class Zun2Fragment extends Fragment implements ZunDataListener{
     SetListener setListener;
     TextView textView;
     Button button;
@@ -41,6 +41,7 @@ public class Zun2Fragment extends Fragment implements ZunDataListener, View.OnCl
     Handler handler;
     Animation anim;
     Vibrator vibrator;
+    boolean isVisible;
     /**
      * Views for popup window
      */
@@ -78,15 +79,74 @@ public class Zun2Fragment extends Fragment implements ZunDataListener, View.OnCl
             @Override
             public void onClick(View v) {
                 LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-                View view = layoutInflater.inflate(R.layout.popup_set,null);
-                spinnerODR = (Spinner)view.findViewById(R.id.ODRSpinner);
-                spinnerRange = (Spinner)view.findViewById(R.id.rangeSpinner);
-                spinnerAxis = (Spinner)view.findViewById(R.id.axisSpinner);
+                View view = layoutInflater.inflate(R.layout.popup_set, null);
+                spinnerODR = (Spinner) view.findViewById(R.id.ODRSpinner);
+                spinnerRange = (Spinner) view.findViewById(R.id.rangeSpinner);
+                spinnerAxis = (Spinner) view.findViewById(R.id.axisSpinner);
                 sys = (CheckBox) view.findViewById(R.id.sys);
                 confirm = (Button) view.findViewById(R.id.confirm);
-                popupWindow = new PopupWindow(view , getActivity().getWindowManager().getDefaultDisplay().getWidth()-50,getActivity().getWindowManager().getDefaultDisplay().getHeight()/2-350);
-                confirm.setOnClickListener(this);
-                popupWindow.showAsDropDown(v,25,0);
+                popupWindow = new PopupWindow(view, getActivity().getWindowManager().getDefaultDisplay().getWidth() - 50, getActivity().getWindowManager().getDefaultDisplay().getHeight() / 2 - 350);
+                confirm.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String temp = "";
+                        switch (spinnerODR.getSelectedItemPosition()) {
+                            case 0:
+                                temp += "010";
+                                break;
+                            case 1:
+                                temp += "011";
+                                break;
+                            case 2:
+                                temp += "100";
+                                break;
+                            case 3:
+                                temp += "101";
+                                break;
+                            case 4:
+                                temp += "110";
+                                break;
+                            case 5:
+                                temp += "111";
+                                break;
+                        }
+                        switch (spinnerRange.getSelectedItemPosition()) {
+                            case 0:
+                                temp += "00";
+                                break;
+                            case 1:
+                                temp += "01";
+                                break;
+                            case 2:
+                                temp += "10";
+                                break;
+                        }
+                        if (sys.isChecked()) {
+                            temp += "1";
+                        } else {
+                            temp += "0";
+                        }
+                        switch (spinnerAxis.getSelectedItemPosition()) {
+                            case 0:
+                                temp += "00";
+                                break;
+                            case 1:
+                                temp += "01";
+                                break;
+                            case 2:
+                                temp += "10";
+                                break;
+                        }
+                        if (temp.substring(0, 1).equals("1")) {
+                            setListener.onSet((byte) Integer.parseInt(temp, 2));
+                        } else {
+                            setListener.onSet(Byte.parseByte(temp, 2));
+                        }
+
+                        popupWindow.dismiss();
+                    }
+                });
+                popupWindow.showAsDropDown(v, 25, 0);
             }
         });
     }
@@ -133,62 +193,9 @@ public class Zun2Fragment extends Fragment implements ZunDataListener, View.OnCl
     }
 
     @Override
-    public void onClick(View v) {
-        String temp = "";
-        switch (spinnerODR.getSelectedItemPosition()){
-            case 0:
-                temp += "010";
-                break;
-            case 1:
-                temp += "011";
-                break;
-            case 2:
-                temp += "100";
-                break;
-            case 3:
-                temp += "101";
-                break;
-            case 4:
-                temp += "110";
-                break;
-            case 5:
-                temp += "111";
-                break;
-        }
-        switch (spinnerRange.getSelectedItemPosition()) {
-            case 0:
-                temp += "00";
-                break;
-            case 1:
-                temp += "01";
-                break;
-            case 2:
-                temp += "10";
-                break;
-        }
-        if(sys.isChecked()){
-            temp += "1";
-        } else {
-            temp += "0";
-        }
-        switch (spinnerAxis.getSelectedItemPosition()) {
-            case 0:
-                temp += "00";
-                break;
-            case 1:
-                temp += "01";
-                break;
-            case 2:
-                temp += "10";
-                break;
-        }
-        if(temp.substring(0,1).equals("1")){
-            setListener.onSet((byte)Integer.parseInt(temp,2));
-        } else {
-            setListener.onSet(Byte.parseByte(temp,2));
-        }
-
-        popupWindow.dismiss();
+    public void onPause() {
+        super.onPause();
+        vibrator.cancel();
     }
 
     private Runnable vibrate = new Runnable() {

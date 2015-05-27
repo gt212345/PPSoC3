@@ -30,12 +30,11 @@ import com.ppsoclab.ppsoc3.R;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.math.BigInteger;
 
 /**
  * Created by User on 2015/5/20.
  */
-public class Zun1Fragment extends Fragment implements ZunDataListener, View.OnClickListener {
+public class Zun1Fragment extends Fragment implements ZunDataListener{
     SetListener setListener;
     TextView textView;
     Button button;
@@ -44,6 +43,10 @@ public class Zun1Fragment extends Fragment implements ZunDataListener, View.OnCl
     MediaPlayer mediaPlayer;
     HandlerThread thread;
     Handler handler;
+    HandlerThread workThread;
+    Handler workHandler;
+    byte[] dataP;
+    boolean isVisible = false;
     /**
      * Views for popup window
      */
@@ -53,7 +56,6 @@ public class Zun1Fragment extends Fragment implements ZunDataListener, View.OnCl
     FileWriter fileWriter;
     BufferedWriter bufferedWriter;
     Animation anim;
-    Thread workThread;
     boolean play = false;
     int set1,set2;
 
@@ -81,6 +83,9 @@ public class Zun1Fragment extends Fragment implements ZunDataListener, View.OnCl
         thread = new HandlerThread("");
         thread.start();
         handler = new Handler(thread.getLooper());
+        workThread = new HandlerThread("");
+        workThread.start();
+        workHandler = new Handler(workThread.getLooper());
         handler.post(warn);
         mediaPlayer = new MediaPlayer();
         imageView = (ImageView) getView().findViewById(R.id.image);
@@ -99,7 +104,66 @@ public class Zun1Fragment extends Fragment implements ZunDataListener, View.OnCl
                 sys = (CheckBox) view.findViewById(R.id.sys);
                 confirm = (Button) view.findViewById(R.id.confirm);
                 popupWindow = new PopupWindow(view , getActivity().getWindowManager().getDefaultDisplay().getWidth()-50,getActivity().getWindowManager().getDefaultDisplay().getHeight()/2-350);
-                confirm.setOnClickListener(this);
+                confirm.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String temp = "";
+                        switch (spinnerODR.getSelectedItemPosition()){
+                            case 0:
+                                temp += "010";
+                                break;
+                            case 1:
+                                temp += "011";
+                                break;
+                            case 2:
+                                temp += "100";
+                                break;
+                            case 3:
+                                temp += "101";
+                                break;
+                            case 4:
+                                temp += "110";
+                                break;
+                            case 5:
+                                temp += "111";
+                                break;
+                        }
+                        switch (spinnerRange.getSelectedItemPosition()) {
+                            case 0:
+                                temp += "00";
+                                break;
+                            case 1:
+                                temp += "01";
+                                break;
+                            case 2:
+                                temp += "10";
+                                break;
+                        }
+                        if(sys.isChecked()){
+                            temp += "1";
+                        } else {
+                            temp += "0";
+                        }
+                        switch (spinnerAxis.getSelectedItemPosition()) {
+                            case 0:
+                                temp += "00";
+                                break;
+                            case 1:
+                                temp += "01";
+                                break;
+                            case 2:
+                                temp += "10";
+                                break;
+                        }
+                        if(temp.substring(0,1).equals("1")){
+                            setListener.onSet((byte)Integer.parseInt(temp,2));
+                        } else {
+                            setListener.onSet(Byte.parseByte(temp,2));
+                        }
+
+                        popupWindow.dismiss();
+                    }
+                });
                 popupWindow.showAsDropDown(v, 25, 0);
             }
         });
@@ -107,44 +171,50 @@ public class Zun1Fragment extends Fragment implements ZunDataListener, View.OnCl
 
     @Override
     public void onDataFire(byte[] data) {
-        str  = "Data set :";
-        str += "Header: " + ByteParse.sIN16FromByte(data[0]) + "\n";
-        str += "Count: " + ByteParse.sIN16FromByte(data[1]) + "\n";
-        str += "ACC_X: " + ByteParse.sIN16From2Byte(data[2], data[3]) + "\n";
-        str += "ACC_Y: " + ByteParse.sIN16From2Byte(data[4],data[5]) + "\n";
-        str += "ACC_Z: " + ByteParse.sIN16From2Byte(data[6],data[7]) + "\n";
-        str += "ANGLE_X: " + ByteParse.sIN16From2Byte(data[8],data[9])/128 + "\n";
-        str += "ANGLE_Y: " + ByteParse.sIN16From2Byte(data[10],data[11])/128 + "\n";
-        if(ByteParse.sIN16From2Byte(data[10],data[11])>3840){
-            play = true;
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    imageView.setImageResource(R.drawable.awake);
-                }
-            });
-
-        } else if (ByteParse.sIN16From2Byte(data[10],data[11])<3840) {
-            play = false;
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    imageView.setImageResource(R.drawable.sleep);
-                }
-            });
-        }
-        str += "ANGLE_Z: " + ByteParse.sIN16From2Byte(data[12], data[13])/128 + "\n";
-        str += "SUM: " + ByteParse.sIN16FromByte(data[14]) + "\n";
-        str += "TAIL: " + ByteParse.sIN16FromByte(data[15]);
-        getActivity().runOnUiThread(new Runnable() {
+        dataP = data;
+        workHandler.post(new Runnable() {
             @Override
             public void run() {
-                textView.setText(str);
-            }
-        });
+                str  = "Data set :";
+                str += "Header: " + ByteParse.sIN16FromByte(dataP[0]) + "\n";
+                str += "Count: " + ByteParse.sIN16FromByte(dataP[1]) + "\n";
+                str += "ACC_X: " + ByteParse.sIN16From2Byte(dataP[2], dataP[3]) + "\n";
+                str += "ACC_Y: " + ByteParse.sIN16From2Byte(dataP[4],dataP[5]) + "\n";
+                str += "ACC_Z: " + ByteParse.sIN16From2Byte(dataP[6],dataP[7]) + "\n";
+                str += "ANGLE_X: " + ByteParse.sIN16From2Byte(dataP[8],dataP[9])/128 + "\n";
+                str += "ANGLE_Y: " + ByteParse.sIN16From2Byte(dataP[10],dataP[11])/128 + "\n";
+                if(ByteParse.sIN16From2Byte(dataP[10],dataP[11])>3840){
+                    play = true;
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            imageView.setImageResource(R.drawable.awake);
+                        }
+                    });
+
+                } else if (ByteParse.sIN16From2Byte(dataP[10],dataP[11])<3840) {
+                    play = false;
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            imageView.setImageResource(R.drawable.sleep);
+                        }
+                    });
+                }
+                str += "ANGLE_Z: " + ByteParse.sIN16From2Byte(dataP[12], dataP[13])/128 + "\n";
+                str += "SUM: " + ByteParse.sIN16FromByte(dataP[14]) + "\n";
+                str += "TAIL: " + ByteParse.sIN16FromByte(dataP[15]);
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        textView.setText(str);
+                    }
+                });
 //        writeToSD(ByteParse.sIN16From2Byte(data[8], data[9]) / 128, "\r\nANGLE_X");
 //        writeToSD(ByteParse.sIN16From2Byte(data[10], data[11]) / 128, "ANGLE_Y");
 //        writeToSD(ByteParse.sIN16From2Byte(data[12],data[13]) / 128,"ANGLE_Z");
+            }
+        });
     }
 
     private void writeToSD (int i, String title) {
@@ -155,69 +225,20 @@ public class Zun1Fragment extends Fragment implements ZunDataListener, View.OnCl
     }
 
     @Override
-    public void onClick(View v) {
-        String temp = "";
-        switch (spinnerODR.getSelectedItemPosition()){
-            case 0:
-                temp += "010";
-                break;
-            case 1:
-                temp += "011";
-                break;
-            case 2:
-                temp += "100";
-                break;
-            case 3:
-                temp += "101";
-                break;
-            case 4:
-                temp += "110";
-                break;
-            case 5:
-                temp += "111";
-                break;
+    public void onPause() {
+        super.onPause();
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer.release();
         }
-        switch (spinnerRange.getSelectedItemPosition()) {
-            case 0:
-                temp += "00";
-                break;
-            case 1:
-                temp += "01";
-                break;
-            case 2:
-                temp += "10";
-                break;
-        }
-        if(sys.isChecked()){
-            temp += "1";
-        } else {
-            temp += "0";
-        }
-        switch (spinnerAxis.getSelectedItemPosition()) {
-            case 0:
-                temp += "00";
-                break;
-            case 1:
-                temp += "01";
-                break;
-            case 2:
-                temp += "10";
-                break;
-        }
-        if(temp.substring(0,1).equals("1")){
-            setListener.onSet((byte)Integer.parseInt(temp,2));
-        } else {
-            setListener.onSet(Byte.parseByte(temp,2));
-        }
-
-        popupWindow.dismiss();
     }
 
     private Runnable warn = new Runnable() {
         @Override
         public void run() {
             while (true) {
-                if (play) {
+                if (play && mediaPlayer != null) {
                     try {
                         mediaPlayer.reset();
                         mediaPlayer.setDataSource("/sdcard/warn.mp3");
@@ -240,7 +261,4 @@ public class Zun1Fragment extends Fragment implements ZunDataListener, View.OnCl
         }
     };
 
-    private void playWarn() {
-        handler.post(warn);
-    }
 }

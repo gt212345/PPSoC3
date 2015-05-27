@@ -330,6 +330,7 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
         if(position == 0) {
             position++;
             fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.remove(fragment);
             fragment = new Zun2Fragment();
             zunDataListener = (Zun2Fragment) fragment;
             fragmentTransaction.replace(R.id.container, fragment);
@@ -339,6 +340,7 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
         } else {
             position = 0;
             fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.remove(fragment);
             fragment = new Zun1Fragment();
             zunDataListener = (Zun1Fragment) fragment;
             fragmentTransaction.replace(R.id.container, fragment);
