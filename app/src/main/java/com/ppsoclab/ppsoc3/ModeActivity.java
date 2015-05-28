@@ -72,7 +72,7 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
 
     private static final String TAG = "ModeActivity";
     private static final String MODE_NAME_1 = "GigaFu-F081";
-    private static final String MODE_NAME_2 = "RNBT-719D";
+    private static final String MODE_NAME_2 = "RNBT-8CBB";
     private static final String THREAD_NAME = "ConnectProcess";
 
     private static final String SET_CH_ID = "0000fff7-0000-1000-8000-00805f9b34fb";
