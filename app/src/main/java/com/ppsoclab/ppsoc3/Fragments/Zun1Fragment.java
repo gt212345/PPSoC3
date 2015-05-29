@@ -49,7 +49,6 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
     MediaPlayer mediaPlayer;
     HandlerThread thread;
     Handler handler;
-    ArrayList<Boolean> buffer;
     HandlerThread workThread;
     Handler workHandler;
     Handler msgHandler;
@@ -70,6 +69,10 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
     EditText phone;
     boolean play = false;
     int set1, set2;
+    ArrayList<Integer> buffer1;
+    ArrayList<Integer> buffer2;
+    ArrayList<Integer> buffer3;
+    int test;
 
     private PopupWindow popupWindow;
 
@@ -83,7 +86,9 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        buffer = new ArrayList<>();
+        buffer1 = new ArrayList<>();
+        buffer2 = new ArrayList<>();
+        buffer3 = new ArrayList<>();
         anim = new AlphaAnimation(0.0f, 1.0f);
         anim.setDuration(500);
         anim.setRepeatMode(Animation.REVERSE);
@@ -209,11 +214,24 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
                 str += "ACC_Z: " + ByteParse.sIN16From2Byte(dataP[6], dataP[7]) + "\n";
                 str += "ANGLE_X: " + ByteParse.sIN16From2Byte(dataP[8], dataP[9]) / 128 + "\n";
                 str += "ANGLE_Y: " + ByteParse.sIN16From2Byte(dataP[10], dataP[11]) / 128 + "\n";
+                if(buffer1.size() <= 10) {
+                    buffer1.add(ByteParse.sIN16From2Byte(dataP[10], dataP[11]) / 128);
+                } else if (buffer1.size() == 10 && buffer2.size() <= 10){
+                    buffer2.add(ByteParse.sIN16From2Byte(dataP[10], dataP[11]) / 128);
+                } else if (buffer1.size() == 10 && buffer2.size() == 10 && buffer3.size() <= 10) {
+                    buffer3.add(ByteParse.sIN16From2Byte(dataP[10], dataP[11]) / 128);
+                }
+                if(buffer1.size()==10&&buffer2.size()==10&&buffer3.size()==10){
+                    for (int i : buffer1){
+
+                    }
+                    buffer1.clear();
+                    buffer2.clear();
+                    buffer3.clear();
+                }
                 if (ByteParse.sIN16From2Byte(dataP[10], dataP[11]) > 3840) {
-                    buffer.add(true);
                     play = true;
                 } else if (ByteParse.sIN16From2Byte(dataP[10], dataP[11]) < 3840) {
-                    buffer.clear();
                     play = false;
                     if(mediaPlayer!=null && mediaPlayer.isPlaying()) {
                         mediaPlayer.pause();
@@ -271,7 +289,6 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
                                 imageView.setImageResource(R.drawable.awake);
                             }
                         });
-                        buffer.clear();
                         try {
                             mediaPlayer.reset();
                             mediaPlayer.setDataSource("/sdcard/warn.mp3");
@@ -283,11 +300,8 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
                                     imageView.startAnimation(anim);
                                 }
                             });
-                            Thread.sleep(10000);
                         } catch (IOException e) {
                             Log.w("WelcomeActivity", e.toString());
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
                         }
                     }
                 }
