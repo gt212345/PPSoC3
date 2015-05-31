@@ -3,27 +3,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/block"
+    <EditText
+        android:id="@+id/deviceName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:visibility="invisible"/>
+        android:layout_centerVertical="true"/>
 
     <Button
         android:id="@+id/mode1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/block"
-        android:layout_alignLeft="@+id/block"
+        android:layout_above="@+id/deviceName"
+        android:layout_alignLeft="@+id/deviceName"
         android:text="Mode1"/>
     <Button
         android:id="@+id/mode2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/block"
-        android:layout_alignLeft="@+id/block"
+        android:layout_below="@+id/deviceName"
+        android:layout_alignLeft="@+id/deviceName"
         android:text="Mode2"/>
 
 

@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 
 import com.ppsoclab.ppsoc3.Interfaces.ModeChooseListener;
 import com.ppsoclab.ppsoc3.ModeActivity;
@@ -18,6 +19,8 @@ import com.ppsoclab.ppsoc3.R;
 public class ConnectFragment extends Fragment implements View.OnClickListener{
     Button mode1,mode2;
     ModeChooseListener modeChooseListener;
+    View rootView;
+    EditText deviceName;
 
     private static final int MODE_1 = 0;
     private static final int MODE_2 = 1;
@@ -26,16 +29,18 @@ public class ConnectFragment extends Fragment implements View.OnClickListener{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_connect,container,false);
+        rootView = view;
         return view;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mode1 = (Button)getView().findViewById(R.id.mode1);
-        mode2 = (Button)getView().findViewById(R.id.mode2);
+        mode1 = (Button) rootView.findViewById(R.id.mode1);
+        mode2 = (Button) rootView.findViewById(R.id.mode2);
         mode1.setOnClickListener(this);
         mode2.setOnClickListener(this);
+        deviceName = (EditText) rootView.findViewById(R.id.deviceName);
     }
 
     @Override
@@ -43,11 +48,11 @@ public class ConnectFragment extends Fragment implements View.OnClickListener{
         switch (view.getId()){
             case R.id.mode1:
                 modeChooseListener = (ModeActivity)getActivity();
-                modeChooseListener.doAfterModeChose(MODE_1);
+                modeChooseListener.doAfterModeChose(MODE_1, deviceName.getText().toString());
                 break;
             case R.id.mode2:
                 modeChooseListener = (ModeActivity)getActivity();
-                modeChooseListener.doAfterModeChose(MODE_2);
+                modeChooseListener.doAfterModeChose(MODE_2,deviceName.getText().toString());
                 break;
         }
     }

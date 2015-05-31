@@ -3,11 +3,13 @@ package com.ppsoclab.ppsoc3.Fragments;
 import android.app.Fragment;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.preference.PreferenceActivity;
 import android.support.annotation.Nullable;
 import android.telephony.SmsManager;
@@ -41,11 +43,11 @@ import java.util.ArrayList;
  * Created by User on 2015/5/20.
  */
 public class Zun1Fragment extends Fragment implements ZunDataListener {
+    boolean isRed = false;
     SetListener setListener;
     TextView textView;
     Button button;
     String str;
-    ImageView imageView;
     MediaPlayer mediaPlayer;
     HandlerThread thread;
     Handler handler;
@@ -53,6 +55,12 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
     Handler workHandler;
     Handler msgHandler;
     HandlerThread msgThread;
+    Handler handlerAnim;
+    HandlerThread threadAnim;
+    Handler UIHandler;
+    int counter = 0;
+    int test = 0;
+    int position = 0;
     private String number;
     byte[] dataP;
     boolean isVisible = false;
@@ -67,28 +75,30 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
     Animation anim;
     SmsManager sms;
     EditText phone;
+    ImageView imageView;
     boolean play = false;
     int set1, set2;
-    ArrayList<Integer> buffer1;
-    ArrayList<Integer> buffer2;
-    ArrayList<Integer> buffer3;
-    int test;
+
+    View view;
 
     private PopupWindow popupWindow;
+
+    LinearLayout background;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_zun1, container, false);
+        this.view = view;
         return view;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        buffer1 = new ArrayList<>();
-        buffer2 = new ArrayList<>();
-        buffer3 = new ArrayList<>();
+        UIHandler = new Handler(Looper.getMainLooper());
+        imageView = (ImageView) view.findViewById(R.id.image);
+        background = (LinearLayout) view.findViewById(R.id.background);
         anim = new AlphaAnimation(0.0f, 1.0f);
         anim.setDuration(500);
         anim.setRepeatMode(Animation.REVERSE);
@@ -100,6 +110,10 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
 //
 //        }
         sms = SmsManager.getDefault();
+        threadAnim = new HandlerThread("");
+        threadAnim.start();
+        handlerAnim = new Handler(threadAnim.getLooper());
+        handlerAnim.post(animR);
         msgThread = new HandlerThread("");
         msgThread.start();
         msgHandler = new Handler(msgThread.getLooper());
@@ -112,7 +126,7 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
         workHandler = new Handler(workThread.getLooper());
         handler.post(warn);
         mediaPlayer = new MediaPlayer();
-        imageView = (ImageView) getView().findViewById(R.id.image);
+        ImageView imageView = (ImageView) getView().findViewById(R.id.image);
         imageView.setImageResource(R.drawable.sleep);
         textView = (TextView) getView().findViewById(R.id.set);
         setListener = (ModeActivity) getActivity();
@@ -214,45 +228,36 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
                 str += "ACC_Z: " + ByteParse.sIN16From2Byte(dataP[6], dataP[7]) + "\n";
                 str += "ANGLE_X: " + ByteParse.sIN16From2Byte(dataP[8], dataP[9]) / 128 + "\n";
                 str += "ANGLE_Y: " + ByteParse.sIN16From2Byte(dataP[10], dataP[11]) / 128 + "\n";
-                if(buffer1.size() <= 10) {
-                    buffer1.add(ByteParse.sIN16From2Byte(dataP[10], dataP[11]) / 128);
-                } else if (buffer1.size() == 10 && buffer2.size() <= 10){
-                    buffer2.add(ByteParse.sIN16From2Byte(dataP[10], dataP[11]) / 128);
-                } else if (buffer1.size() == 10 && buffer2.size() == 10 && buffer3.size() <= 10) {
-                    buffer3.add(ByteParse.sIN16From2Byte(dataP[10], dataP[11]) / 128);
-                }
-                if(buffer1.size()==10&&buffer2.size()==10&&buffer3.size()==10){
-                    for (int i : buffer1){
-
-                    }
-                    buffer1.clear();
-                    buffer2.clear();
-                    buffer3.clear();
-                }
-                if (ByteParse.sIN16From2Byte(dataP[10], dataP[11]) > 3840) {
-                    play = true;
-                } else if (ByteParse.sIN16From2Byte(dataP[10], dataP[11]) < 3840) {
-                    play = false;
-                    if(mediaPlayer!=null && mediaPlayer.isPlaying()) {
-                        mediaPlayer.pause();
-                    }
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            imageView.clearAnimation();
-                            imageView.setImageResource(R.drawable.sleep);
+                test += ByteParse.sIN16From2Byte(dataP[10], dataP[11]);
+                counter++;
+                if(counter == 10) {
+                    if (test/10 > 3840) {
+                        play = true;
+                    } else if (test/10 < 3840) {
+                        play = false;
+                        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                            mediaPlayer.pause();
                         }
-                    });
+                        UIHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                imageView.setImageResource(R.drawable.sleep);
+                                background.setBackgroundColor(Color.WHITE);
+                            }
+                        });
+                    }
+                    counter = 0;
+                    test = 0;
                 }
                 str += "ANGLE_Z: " + ByteParse.sIN16From2Byte(dataP[12], dataP[13]) / 128 + "\n";
                 str += "SUM: " + ByteParse.sIN16FromByte(dataP[14]) + "\n";
                 str += "TAIL: " + ByteParse.sIN16FromByte(dataP[15]);
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        textView.setText(str);
-                    }
-                });
+//                getActivity().runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        textView.setText(str);
+//                    }
+//                });
 //        writeToSD(ByteParse.sIN16From2Byte(data[8], data[9]) / 128, "\r\nANGLE_X");
 //        writeToSD(ByteParse.sIN16From2Byte(data[10], data[11]) / 128, "ANGLE_Y");
 //        writeToSD(ByteParse.sIN16From2Byte(data[12],data[13]) / 128,"ANGLE_Z");
@@ -281,25 +286,19 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
         @Override
         public void run() {
             while (true) {
-                if (mediaPlayer != null) {
-                    if (play && buffer.size() >= 100) {
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                imageView.setImageResource(R.drawable.awake);
-                            }
-                        });
+                if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
+                    if (play) {
                         try {
                             mediaPlayer.reset();
-                            mediaPlayer.setDataSource("/sdcard/warn.mp3");
+                            mediaPlayer.setDataSource("/sdcard/warn.m4a");
                             mediaPlayer.prepare();
                             mediaPlayer.start();
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    imageView.startAnimation(anim);
-                                }
-                            });
+//                            getActivity().runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    imageView.startAnimation(anim);
+//                                }
+//                            });
                         } catch (IOException e) {
                             Log.w("WelcomeActivity", e.toString());
                         }
@@ -313,13 +312,74 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
         @Override
         public void run() {
             while (true) {
-                if(play && buffer.size() > 100) {
+                if(play) {
+                    if(isRed) {
+                        isRed = false;
+                        UIHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                background.setBackgroundColor(Color.WHITE);
+                            }
+                        });
+                    } else {
+                        isRed = true;
+                        UIHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                background.setBackgroundColor(Color.RED);
+                            }
+                        });
+                    }
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity(), 0, new Intent(), 0);
                     if(number != null) {
                         sms.sendTextMessage(number, null, "Warning! Patient is getting up.", pendingIntent, null);
                     }
+                }
+                try {
+                    Thread.sleep(950);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+
+    Runnable animR = new Runnable() {
+        @Override
+        public void run() {
+            while (true) {
+                if(play) {
+                    switch (position) {
+                        case 0:
+                            position = 1;
+                            UIHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    imageView.setImageResource(R.drawable.sleep);
+                                }
+                            });
+                            break;
+                        case 1:
+                            position = 2;
+                            UIHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    imageView.setImageResource(R.drawable.awake);
+                                }
+                            });
+                            break;
+                        case 2:
+                            position = 0;
+                            UIHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    imageView.setImageResource(R.drawable.awake2);
+                                }
+                            });
+                            break;
+                    }
                     try {
-                        Thread.sleep(600000);
+                        Thread.sleep(400);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -327,4 +387,5 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
             }
         }
     };
+
 }

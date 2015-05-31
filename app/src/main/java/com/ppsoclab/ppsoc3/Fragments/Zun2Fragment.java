@@ -1,10 +1,14 @@
 package com.ppsoclab.ppsoc3.Fragments;
 
 import android.app.Fragment;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -15,6 +19,7 @@ import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -39,9 +44,14 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
     ImageView imageView;
     HandlerThread thread;
     Handler handler;
+    HandlerThread animThread;
+    Handler animHandler;
     Animation anim;
     Vibrator vibrator;
-    boolean isVisible;
+    boolean isRed = false;
+    Handler UIHandler;
+    LinearLayout background;
+    View rootView;
     /**
      * Views for popup window
      */
@@ -56,6 +66,7 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_zun1,container,false);
+        rootView = view;
         return view;
     }
 
@@ -63,18 +74,24 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         vibrator = (Vibrator) getActivity().getSystemService(Service.VIBRATOR_SERVICE);
+        background = (LinearLayout) rootView.findViewById(R.id.background);
+        animThread = new HandlerThread("");
+        animThread.start();
+        animHandler = new Handler(animThread.getLooper());
+        animHandler.post(backgroundR);
+        UIHandler = new Handler(Looper.getMainLooper());
         anim = new AlphaAnimation(0.0f, 1.0f);
         anim.setDuration(500);
         anim.setRepeatMode(Animation.REVERSE);
         anim.setRepeatCount(15);
-        imageView = (ImageView) getView().findViewById(R.id.image);
-        textView = (TextView) getView().findViewById(R.id.set);
+        imageView = (ImageView) rootView.findViewById(R.id.image);
+        textView = (TextView)rootView.findViewById(R.id.set);
         setListener = (ModeActivity) getActivity();
         thread = new HandlerThread("");
         thread.start();
         handler = new Handler(thread.getLooper());
         handler.post(vibrate);
-        button = (Button) getView().findViewById(R.id.setButton);
+        button = (Button) rootView.findViewById(R.id.setButton);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -177,6 +194,7 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
                     play = false;
                     imageView.clearAnimation();
                     imageView.setImageResource(R.drawable.normal);
+                    background.setBackgroundColor(Color.WHITE);
                 }
             });
         }
@@ -216,6 +234,38 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
                     }
                 } else {
                     vibrator.cancel();
+                }
+            }
+        }
+    };
+
+    Runnable backgroundR = new Runnable() {
+        @Override
+        public void run() {
+            while (true) {
+                if(play) {
+                    if(isRed) {
+                        isRed = false;
+                        UIHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                background.setBackgroundColor(Color.WHITE);
+                            }
+                        });
+                    } else {
+                        isRed = true;
+                        UIHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                background.setBackgroundColor(Color.RED);
+                            }
+                        });
+                    }
+                }
+                try {
+                    Thread.sleep(950);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
         }
