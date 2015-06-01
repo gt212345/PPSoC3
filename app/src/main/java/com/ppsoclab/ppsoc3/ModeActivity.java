@@ -75,6 +75,7 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
     private static final String MODE_NAME_2 = "RNBT-8CBB";
     private static final String THREAD_NAME = "ConnectProcess";
 
+    private static final String DEVICE_ADDRESS = "F4:B8:5E:31:F0:81";
     private static final String SET_CH_ID = "0000fff7-0000-1000-8000-00805f9b34fb";
     private static final String NOTI_CH_ID = "0000fff6-0000-1000-8000-00805f9b34fb";
     private static final String DEVICE_UUID = "1f26fc65-0099-423c-637c-c99027417e7e";
@@ -217,17 +218,19 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
 
     @Override
     public void onLeScan(BluetoothDevice bluetoothDevice, int i, byte[] bytes) {
-        if(bluetoothDevice!= null) {
+        if(bluetoothDevice != null) {
             if (!deviceName.equals("")) {
                 if (bluetoothDevice.getName().equals(deviceName)) {
                     bluetoothGatt = bluetoothDevice.connectGatt(this, false, bluetoothGattCallback);
                 }
-            }
-            if (bluetoothDevice.getName().equals(MODE_NAME_1)) {
-                bluetoothGatt = bluetoothDevice.connectGatt(this, false, bluetoothGattCallback);
+            } else {
+                Log.w(TAG,bluetoothDevice.getAddress());
+                if (bluetoothDevice.getName().equals(MODE_NAME_1) && bluetoothDevice.getAddress().equals(DEVICE_ADDRESS)) {
+                    bluetoothGatt = bluetoothDevice.connectGatt(this, false, bluetoothGattCallback);
+                    bluetoothAdapter.stopLeScan(this);
+                }
             }
         }
-
     }
 
     @Override
