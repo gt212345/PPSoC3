@@ -5,8 +5,9 @@
 
     <EditText
         android:id="@+id/deviceName"
-        android:layout_width="100dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
+        android:hint="Enter Device Name"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"/>
 

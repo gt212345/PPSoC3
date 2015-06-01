@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -49,6 +50,7 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
     Animation anim;
     Vibrator vibrator;
     boolean isRed = false;
+    boolean isVibrate = false;
     Handler UIHandler;
     LinearLayout background;
     View rootView;
@@ -90,7 +92,7 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
         thread = new HandlerThread("");
         thread.start();
         handler = new Handler(thread.getLooper());
-        handler.post(vibrate);
+//        handler.post(vibrate);
         button = (Button) rootView.findViewById(R.id.setButton);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,6 +105,8 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
                 sys = (CheckBox) view.findViewById(R.id.sys);
                 confirm = (Button) view.findViewById(R.id.confirm);
                 popupWindow = new PopupWindow(view, getActivity().getWindowManager().getDefaultDisplay().getWidth() - 50, getActivity().getWindowManager().getDefaultDisplay().getHeight() / 2 - 350);
+                popupWindow.setBackgroundDrawable(new BitmapDrawable());
+                popupWindow.setOutsideTouchable(true);
                 confirm.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -159,10 +163,11 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
                         } else {
                             setListener.onSet(Byte.parseByte(temp, 2));
                         }
-
                         popupWindow.dismiss();
                     }
                 });
+                popupWindow.setFocusable(true);
+                popupWindow.update();
                 popupWindow.showAsDropDown(v, 25, 0);
             }
         });
@@ -179,6 +184,10 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
         str += "ANGLE_X: " + ByteParse.sIN16From2Byte(data[8],data[9])/128 + "\n";
         str += "ANGLE_Y: " + ByteParse.sIN16From2Byte(data[10],data[11])/128 + "\n";
         if(ByteParse.sIN16From2Byte(data[10],data[11])<5760){
+            if(!isVibrate) {
+                vibrator.vibrate(500000);
+                isVibrate = true;
+            }
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -188,11 +197,12 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
             });
 
         } else if (ByteParse.sIN16From2Byte(data[10],data[11])>5760) {
+            vibrator.cancel();
+            isVibrate = false;
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     play = false;
-                    vibrator.cancel();
                     imageView.clearAnimation();
                     imageView.setImageResource(R.drawable.normal);
                     background.setBackgroundColor(Color.WHITE);
@@ -216,29 +226,6 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
         vibrator.cancel();
     }
 
-    private Runnable vibrate = new Runnable() {
-        @Override
-        public void run() {
-            while (true) {
-                if(play) {
-                    vibrator.vibrate(1000);
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            imageView.startAnimation(anim);
-                        }
-                    });
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    vibrator.cancel();
-                }
-            }
-        }
-    };
 
     Runnable backgroundR = new Runnable() {
         @Override
@@ -262,9 +249,15 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
                             }
                         });
                     }
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            imageView.startAnimation(anim);
+                        }
+                    });
                 }
                 try {
-                    Thread.sleep(950);
+                    Thread.sleep(800);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
