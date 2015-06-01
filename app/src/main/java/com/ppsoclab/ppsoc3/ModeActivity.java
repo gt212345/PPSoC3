@@ -218,13 +218,15 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
 
     @Override
     public void onLeScan(BluetoothDevice bluetoothDevice, int i, byte[] bytes) {
-        if(!deviceName.equals("")){
-            if(bluetoothDevice.getName().equals(deviceName)){
+        if(bluetoothDevice!= null) {
+            if (!deviceName.equals("")) {
+                if (bluetoothDevice.getName().equals(deviceName)) {
+                    bluetoothGatt = bluetoothDevice.connectGatt(this, false, bluetoothGattCallback);
+                }
+            }
+            if (bluetoothDevice.getName().equals(MODE_NAME_1)) {
                 bluetoothGatt = bluetoothDevice.connectGatt(this, false, bluetoothGattCallback);
             }
-        }
-        if(bluetoothDevice.getName().equals(MODE_NAME_1)){
-            bluetoothGatt = bluetoothDevice.connectGatt(this, false, bluetoothGattCallback);
         }
 
     }

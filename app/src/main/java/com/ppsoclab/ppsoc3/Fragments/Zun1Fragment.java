@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
@@ -58,6 +59,10 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
     Handler handlerAnim;
     HandlerThread threadAnim;
     Handler UIHandler;
+    HandlerThread stopThread;
+    Handler stopHandler;
+    boolean stop = false;
+    boolean isSent = false;
     int counter = 0;
     int test = 0;
     int position = 0;
@@ -76,6 +81,7 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
     SmsManager sms;
     EditText phone;
     ImageView imageView;
+    Button stopButton;
     boolean play = false;
     int set1, set2;
 
@@ -97,6 +103,30 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         UIHandler = new Handler(Looper.getMainLooper());
+        stopButton = (Button) view.findViewById(R.id.stopButton);
+        stopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(stop) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            stopButton.setText("Stop Alarm");
+                        }
+                    });
+                    stop = false;
+                } else {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            stopButton.setText("Start Alarm");
+                            background.setBackgroundColor(Color.WHITE);
+                        }
+                    });
+                    stop = true;
+                }
+            }
+        });
         imageView = (ImageView) view.findViewById(R.id.image);
         background = (LinearLayout) view.findViewById(R.id.background);
         anim = new AlphaAnimation(0.0f, 1.0f);
@@ -143,6 +173,8 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
                 sys = (CheckBox) view.findViewById(R.id.sys);
                 confirm = (Button) view.findViewById(R.id.confirm);
                 popupWindow = new PopupWindow(view, getActivity().getWindowManager().getDefaultDisplay().getWidth() - 50, getActivity().getWindowManager().getDefaultDisplay().getHeight() / 2 - 200);
+                popupWindow.setBackgroundDrawable(new BitmapDrawable());
+                popupWindow.setOutsideTouchable(true);
                 confirm.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -234,6 +266,7 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
                     if (test/10 > 3840) {
                         play = true;
                     } else if (test/10 < 3840) {
+                        isSent = false;
                         play = false;
                         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                             mediaPlayer.pause();
@@ -287,7 +320,7 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
         public void run() {
             while (true) {
                 if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
-                    if (play) {
+                    if (play && !stop) {
                         try {
                             mediaPlayer.reset();
                             mediaPlayer.setDataSource("/sdcard/warn.m4a");
@@ -312,7 +345,7 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
         @Override
         public void run() {
             while (true) {
-                if(play) {
+                if(play && !isSent && !stop) {
                     if(isRed) {
                         isRed = false;
                         UIHandler.post(new Runnable() {
@@ -333,10 +366,11 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity(), 0, new Intent(), 0);
                     if(number != null) {
                         sms.sendTextMessage(number, null, "Warning! Patient is getting up.", pendingIntent, null);
+                        isSent = true;
                     }
                 }
                 try {
-                    Thread.sleep(950);
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -348,7 +382,7 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
         @Override
         public void run() {
             while (true) {
-                if(play) {
+                if(play && !stop) {
                     switch (position) {
                         case 0:
                             position = 1;
@@ -358,6 +392,11 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
                                     imageView.setImageResource(R.drawable.sleep);
                                 }
                             });
+                            try {
+                                Thread.sleep(400);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                             break;
                         case 1:
                             position = 2;
@@ -367,6 +406,11 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
                                     imageView.setImageResource(R.drawable.awake);
                                 }
                             });
+                            try {
+                                Thread.sleep(400);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                             break;
                         case 2:
                             position = 0;
@@ -376,12 +420,12 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
                                     imageView.setImageResource(R.drawable.awake2);
                                 }
                             });
+                            try {
+                                Thread.sleep(1500);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                             break;
-                    }
-                    try {
-                        Thread.sleep(400);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
                     }
                 }
             }
