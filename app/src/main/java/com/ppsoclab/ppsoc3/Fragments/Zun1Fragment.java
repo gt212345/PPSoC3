@@ -281,7 +281,7 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
                 if(counter == 30) {
                     if (test/30 > 3840) {
                         play = true;
-                    } else if (test/130 < 3840) {
+                    } else if (test/130 < 3200) {
                         isSent = false;
                         play = false;
                         if (mediaPlayer != null && mediaPlayer.isPlaying()) {

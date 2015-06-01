@@ -65,7 +65,6 @@ public class ModeActivity extends AppCompatActivity implements ModeChooseListene
     byte[] temp;
     int position = 0;
 
-
     boolean isConnected = false;
 
     byte[] data;

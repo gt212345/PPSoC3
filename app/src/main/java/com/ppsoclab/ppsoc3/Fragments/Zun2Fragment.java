@@ -196,7 +196,7 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
                 }
             });
 
-        } else if (ByteParse.sIN16From2Byte(data[10],data[11])>5760) {
+        } else if (ByteParse.sIN16From2Byte(data[10],data[11])>6400) {
             vibrator.cancel();
             isVibrate = false;
             getActivity().runOnUiThread(new Runnable() {
