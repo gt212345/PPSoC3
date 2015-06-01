@@ -100,6 +100,19 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
     }
 
     @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if(!isVisibleToUser) {
+            workHandler.post(new Runnable() {
+                @Override
+                public void run() {
+
+                }
+            });
+        }
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         UIHandler = new Handler(Looper.getMainLooper());
@@ -116,6 +129,9 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
                     });
                     stop = false;
                 } else {
+                    if(mediaPlayer.isPlaying()) {
+                        mediaPlayer.pause();
+                    }
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -262,10 +278,10 @@ public class Zun1Fragment extends Fragment implements ZunDataListener {
                 str += "ANGLE_Y: " + ByteParse.sIN16From2Byte(dataP[10], dataP[11]) / 128 + "\n";
                 test += ByteParse.sIN16From2Byte(dataP[10], dataP[11]);
                 counter++;
-                if(counter == 10) {
-                    if (test/10 > 3840) {
+                if(counter == 30) {
+                    if (test/30 > 3840) {
                         play = true;
-                    } else if (test/10 < 3840) {
+                    } else if (test/130 < 3840) {
                         isSent = false;
                         play = false;
                         if (mediaPlayer != null && mediaPlayer.isPlaying()) {

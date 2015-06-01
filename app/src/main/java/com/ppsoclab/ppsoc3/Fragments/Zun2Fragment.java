@@ -178,7 +178,7 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
         str += "ACC_Z: " + ByteParse.sIN16From2Byte(data[6],data[7]) + "\n";
         str += "ANGLE_X: " + ByteParse.sIN16From2Byte(data[8],data[9])/128 + "\n";
         str += "ANGLE_Y: " + ByteParse.sIN16From2Byte(data[10],data[11])/128 + "\n";
-        if(ByteParse.sIN16From2Byte(data[10],data[11])<7680){
+        if(ByteParse.sIN16From2Byte(data[10],data[11])<5760){
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -187,11 +187,12 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
                 }
             });
 
-        } else if (ByteParse.sIN16From2Byte(data[10],data[11])>7680) {
+        } else if (ByteParse.sIN16From2Byte(data[10],data[11])>5760) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     play = false;
+                    vibrator.cancel();
                     imageView.clearAnimation();
                     imageView.setImageResource(R.drawable.normal);
                     background.setBackgroundColor(Color.WHITE);
@@ -228,7 +229,7 @@ public class Zun2Fragment extends Fragment implements ZunDataListener{
                         }
                     });
                     try {
-                        Thread.sleep(950);
+                        Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
